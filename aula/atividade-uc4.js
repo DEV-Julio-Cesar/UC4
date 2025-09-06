@@ -2,11 +2,20 @@ import PromptSync from 'prompt-sync'
 const prompt = PromptSync()
 
 console.log('Sequência numerica FOR: ')
-for(let i = 1; i <= 15; i += 10){
-    console.log(i)
 
 
-}
+
+
+
+
+
+
+
+
+
+  
+
+
 console.log('Sequência numerica While: ')
  let y = 1
  while(y <= 15){

@@ -1,0 +1,36 @@
+import promptSync from "prompt-sync";
+const prompt = promptSync();
+
+// Lista de palavras ofensivas (pode crescer à vontade)
+const palavrasOfensivas = ["Anus","Baba-ovo","Babaovo","Babaca","Bacura","Bagos","Baitola","Bebum","Besta","Bicha","Bisca","Bixa","Boazuda","Boceta","ladrao","safado"
+    ,"Boco","Boiola","Bolagato","Boquete","Bolcat","Bosseta","Bosta","Bostana","Brecha","Brexa","Brioco","Bronha","Buca","Buceta","Bunda","Bunduda","Burra"
+    ,"Burro","Busseta","Cachorra","Cachorro","Cadela","Caga","Cagado","Cagao","Cagona","Canalha","Caralho","Casseta","Cassete","Checheca","Chereca","Chibumba",
+    "Chibumbo","Chifruda","Chifrudo","Chota","Chochota","Chupada","Chupado","Clitoris","Cocaina","Coco","Corna","Corno","Cornuda","Cornudo","Corrupta","Corrupto",
+    "Cretina","Cretino","Cruz-credo","Cu","Culhao","Curalho","Cuzao","Cuzuda","Cuzudo","Debil","Debiloide","Defunto","Demonio","Difunto","Doida","Doido","Egua",
+    "Escrota","Escroto","Esporrada","Esporrado","Esporro","Estupida","Estupidez","Estupido","Fedida","Fedido","Fedor","Fedorenta","Feia","Feio","Feiosa","Feioso",
+    "Feioza","Feiozo","Felacao","Fenda","Foda","Fodao","Fode","Fodida","Fodido","Fornica","Fudendo","Fudecao","Fudida","Fudido","Furada","Furado","Furão","Furnica","Furnicar","Furo","Furona","Gaiata","Gaiato","Gay","Gonorrea","Gonorreia","Gosma","Gosmenta","Gosmento","Grelinho","Grelo","Homo-sexual","Homossexual","Homossexual","Idiota","Idiotice","Imbecil","Iscrota","Iscroto","Japa","Ladra","Ladrao","Ladroeira","Ladrona","Lalau","Leprosa","Leproso","Lésbica","Macaca","Macaco","Machona","Machorra","Manguaca","Manguaça","Masturba","Meleca","Merda","Mija","Mijada","Mijado","Mijo","Mocrea","Mocreia","Moleca","Moleque","Mondronga","Mondrongo","Naba","Nadega","Nojeira","Nojenta","Nojento","Nojo","Olhota","Otaria","Ot-ria","Otario","Ot-rio","Paca","Paspalha","Paspalhao","Paspalho","Pau","Peia","Peido","Pemba","Pênis","Pentelha","Pentelho","Perereca","Peru","Pica","Picao","Pilantra","Piranha","Piroca","Piroco","Piru","Porra","Prega","Prostibulo","Prost-bulo","Prostituta","Prostituto","Punheta","Punhetao","Pus","Pustula","Puta","Puto","Puxa-saco","Puxasaco","Rabao","Rabo","Rabuda","Rabudao","Rabudo","Rabudona","Racha","Rachada","Rachadao","Rachadinha","Rachadinho","Rachado","Ramela","Remela","Retardada","Retardado","Ridícula","Rola","Rolinha","Rosca","Sacana","Safada","Safado","Sapatao","Sifilis","Siririca","Tarada","Tarado","Testuda","Tezao","Tezuda","Tezudo","Trocha","Trolha","Troucha","Trouxa","Troxa","Vaca","Vagabunda","Vagabundo","Vagina","Veada","Veadao","Veado","Viada","Víado","Viadao","Xavasca","Xerereca","Xexeca","Xibiu","Xibumba","Xota","Xochota","Xoxota","Xana","Xaninha","Acompanhar","Bacana","Barato","Barra limpa","Batuta","Beca","Bicho","Boa pinta","Bode","Borocoxô","Botar pra quebrar","Broto","Bulhufas","Cafona","Carango","Careta","Carro","Chapa","Chato de galocha","Chocante","Confusão","Dançou!","Dar no pé","De lascar","Devagar!","Dinheiro","Do arco da velha","Dondoca","Estourar a boca do balão","Excelente","extrapolar","Fichinha","Fora de moda","Gamado","Grilado","Ir embora","Ir na onda","Joia","Legal","Moderno","Patavinas","Patota","Pega leve!","Perdeu!","Pindaíba","Pintar","Pode crer!","Pombas!","Pra caramba","Pra frente","Preocupado","Pé de valsa","Quadrado","Sacou?","Serelepe","Supimpa","pra dedéu","Transado","Traquinas","Tristinho","Turma", "galera","Tutu","Um estouro!","Xuxu beleza!","À beça","É fogo!"]
+
+// Solicita o artigo
+let artigo = prompt("Digite o texto do artigo para publicação:");
+
+// Transforma em array de palavras
+let palavras = artigo.split(/\s+/);
+
+// Substitui e conta
+let contador = 0;
+let textoFinal = palavras.map(palavra => {
+  let palavraLimpa = palavra.toLowerCase().replace(/[.,!?;:()]/g, "");
+  if (palavrasOfensivas.includes(palavraLimpa)) {
+    contador++;
+    return "***";
+  }
+  return palavra;
+});
+
+// Reconstrói o texto
+let resultado = textoFinal.join(" ");
+
+// Saída
+console.log("\n===== TEXTO FILTRADO =====");
+console.log(resultado);
+console.log(`\nTotal de substituições: ${contador}`);

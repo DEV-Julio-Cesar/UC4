@@ -1,4 +1,23 @@
 {
+  "name": "uc4",
+  "version": "1.0.0",
+  "description": "UC4",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koldrinegao/UC4.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/koldrinegao/UC4/issues"
+  },
+  "homepage": "https://github.com/koldrinegao/UC4#readme",
   "dependencies": {
     "prompt-sync": "^4.2.0"
   }

@@ -8,6 +8,34 @@ let receitaTotal = 0.0;
 // --- Funções do Controle de Estoque ---
 
 
+function main() {
+    while (true) {
+        console.log(" SISTEMA DE PADARIA  ");
+        console.log("0. Sair");
+        console.log("1. Listar estoque");
+        console.log("2. Consultar produto");
+        console.log("3. Adicionar produto");
+        console.log("4. Remover produto");
+        console.log("5. Registrar venda");
+        console.log("6. Relatório final");
+        
+        
+        const opcao = prompt("Digite o número da opção desejada: ");
+
+        switch (opcao) { //switch fica no lugar do if e else ou do se, senão
+            case '1': listarEstoque(); break;
+            case '2': consultarProduto(); break;
+            case '3': adicionarProduto(); break;
+            case '4': removerProduto(); break;
+            case '5': registrarVenda(); break;
+            case '6': exibirRelatorio(); break;
+            case '0':
+                console.log("\nSaindo do sistema. Até logo!");
+                return;
+            default:
+                console.log("\nOpção inválida! Por favor, escolha uma opção do menu.\n");
+        }
+    }
   //Exibe todos os produtos disponíveis no estoque.
  
 function listarEstoque() {
@@ -94,13 +122,13 @@ function removerProduto() {
 
 // --- Funções de Vendas e Relatório ---
 
-/**
- * Registra a venda de um produto, atualizando o estoque e a receita.
- */
-function registrarVenda() {
-    const nomeProduto = prompt("Digite o nome do produto vendido: ").trim();
 
-    const produtoNoEstoque = estoque.find(p => p.nome.toLowerCase() === nomeProduto.toLowerCase());
+ // Registra a venda de um produto, atualizando o estoque e a receita.
+ 
+function registrarVenda() {
+    const nomeProduto = prompt("Digite o nome do produto vendido: ").trim(); //trim remove espaço em branco
+
+    const produtoNoEstoque = estoque.find(p => p.nome.toLowerCase() === nomeProduto.toLowerCase()); // roLowerCase transforma tudo em letras minúsculas
 
     if (!produtoNoEstoque) {
         console.log(`\nErro: Produto '${nomeProduto}' não encontrado no estoque.\n`);
@@ -126,7 +154,7 @@ function registrarVenda() {
     receitaTotal += valorVenda;
 
     // Registra na lista de vendas do dia
-    const produtoVendido = vendas.find(p => p.nome.toLowerCase() === nomeProduto.toLowerCase());
+    const produtoVendido = vendas.find(p => p.nome.toLowerCase() === nomeProduto.toLowerCase()); // find localiza a primeira letra do array
     if (produtoVendido) {
         produtoVendido.quantidade += quantidadeVendida;
     } else {
@@ -136,9 +164,9 @@ function registrarVenda() {
     console.log(`\nVenda registrada com sucesso! Valor: R$ ${valorVenda.toFixed(2)}\n`);
 }
 
-/**
- * Mostra um relatório final com as vendas, receita e estoque restante.
- */
+
+ // Mostra um relatório final com as vendas, receita e estoque restante.
+ 
 function exibirRelatorio() {
     console.log("\n--- RELATÓRIO FINAL DO DIA ---");
     
@@ -158,35 +186,9 @@ function exibirRelatorio() {
 }
 
 
-// --- Função Principal (Menu) ---
 
-function main() {
-    while (true) {
-        console.log("--- SISTEMA DE PADARIA (Array Version) ---");
-        console.log("1. Listar estoque");
-        console.log("2. Consultar produto");
-        console.log("3. Adicionar produto");
-        console.log("4. Remover produto");
-        console.log("5. Registrar venda");
-        console.log("6. Relatório final");
-        console.log("0. Sair");
-        
-        const opcao = prompt("Digite o número da opção desejada: ");
 
-        switch (opcao) {
-            case '1': listarEstoque(); break;
-            case '2': consultarProduto(); break;
-            case '3': adicionarProduto(); break;
-            case '4': removerProduto(); break;
-            case '5': registrarVenda(); break;
-            case '6': exibirRelatorio(); break;
-            case '0':
-                console.log("\nSaindo do sistema. Até logo!");
-                return;
-            default:
-                console.log("\nOpção inválida! Por favor, escolha uma opção do menu.\n");
-        }
-    }
+    
 }
 
 main();

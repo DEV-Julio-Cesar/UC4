@@ -4,13 +4,18 @@ const prompt = promptSync()
 let estoque = [];
 let vendas = [];
 let receitaTotal = 0.0;
+   
+
+
+
 
 // --- Funções do Controle de Estoque ---
 
+// Menur principal da padaria
 
 function main() {
     while (true) {
-        console.log(" SISTEMA DE PADARIA  ");
+        console.log(" SISTEMA DE PADARIA  ")
         console.log("0. Sair");
         console.log("1. Listar estoque");
         console.log("2. Consultar produto");
@@ -81,6 +86,9 @@ function adicionarProduto() {
         console.log("\nErro: Quantidade e preço devem ser números positivos.\n");
         return;
     }
+
+
+
 
     const produtoExistente = estoque.find(p => p.nome.toLowerCase() === nomeProduto.toLowerCase());
 
@@ -192,3 +200,15 @@ function exibirRelatorio() {
 }
 
 main();
+
+// O menu é exibido dentro de um loop infinito (while(true)), e o usuário escolhe a ação digitando um número.
+// O switch redireciona a escolha para a função correta.
+// Usa .forEach() para percorrer o array e exibir cada produto.
+// Pesquisa no estoque usando .find().
+// Ignora diferença de maiúsculas/minúsculas com .toLowerCase().
+// Usa .push() para inserir no array.
+// Usa .filter() para criar um novo array sem o produto removido.
+// Chama a função main() e inicia o programa no terminal.
+// find localiza a primeira letra do array
+// trim remove espaço em branco
+// .push() adiciona um item ao final do array.

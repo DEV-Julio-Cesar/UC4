@@ -24,23 +24,16 @@ let menorque0 = preco.every(valor => valor < 0)
 
 if (!menorque5){
     console.log("existe  valor menor que 5 : sim")
-
-}
-else
+}else
     {
     console.log("Todos os produtor maior que 5: não")   
-}
-if (menorque0){
+}if (menorque0){
     
     console.log("existe valor menor que 0 : sim")
-
-}
-else
+}else
     {
-   
-    console.log("Todos os produtor maior que 0: não")
-
-    
+ 
+    console.log("Todos os produtor maior que 0: não") 
 }
 
 

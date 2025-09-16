@@ -3,12 +3,12 @@ const prompt = promptSync()
 
 let nome = ["pipoca", "maça", "arroz", "limao"]
 let preco = [2, 5, 8, 7]
-let categoria = ["Bagana", "hortifruti", "Não parecivel", "hortifruti"]
+let categorias = ["Bagana", "hortifruti", "Não parecivel", "hortifruti"]
 let soma = 0
 
 //cost supemercado = [index]
 categorias.forEach((categoria, indice) => {
-    if (categoria === "Hortifruti") {
+    if (categorias === "Hortifruti") {
    console.log(nomes[indice]);
    }
 })
@@ -16,7 +16,7 @@ categorias.forEach((categoria, indice) => {
 for(let i = 0; i < nome.length; i++){
     console.log(`Nome : ${nome[i]}`)
      console.log(`Preço : ${preco[i]}`)
-      console.log(`Categoria : ${categoria[i]}`)
+      console.log(`Categoria : ${categorias[i]}`)
       console.log(`Preço com reajuste de 5% : ${preco[i]+preco[i]*5/100}`)
       soma += preco[i]
       
@@ -29,7 +29,7 @@ let somatotalHortifruti = categorias.reduce((acumulador, categoriaAtual, indice)
     return acumulador;
   }, 0)
 
-  
+
 console.log(`Preço dos produtos totais ${soma}`)
 
 let menorque5 = preco.every(valor => valor < 5)

@@ -7,7 +7,11 @@ let categoria = ["Bagana", "hortifruti", "Não parecivel", "hortifruti"]
 let soma = 0
 
 //cost supemercado = [index]
-categoria.forEach
+categorias.forEach((categoria, indice) => {
+    if (categoria === "Hortifruti") {
+   console.log(nomes[indice]);
+   }
+})
 
 for(let i = 0; i < nome.length; i++){
     console.log(`Nome : ${nome[i]}`)
@@ -17,17 +21,29 @@ for(let i = 0; i < nome.length; i++){
       soma += preco[i]
       
 }
+
+let somatotalHortifruti = categorias.reduce((acumulador, categoriaAtual, indice) => {
+    if (categoriaAtual === 'Hortifruti') { 
+      return acumulador + prescoacressimo[indice]
+    } 
+    return acumulador;
+  }, 0)
+
+  
 console.log(`Preço dos produtos totais ${soma}`)
 
 let menorque5 = preco.every(valor => valor < 5)
-let menorque0 = preco.every(valor => valor < 0)
+
 
 if (!menorque5){
     console.log("existe  valor menor que 5 : sim")
 }else
     {
     console.log("Todos os produtor maior que 5: não")   
-}if (menorque0){
+}
+
+let menorque0 = preco.every(valor => valor < 0)
+if (menorque0){
     
     console.log("existe valor menor que 0 : sim")
 }else

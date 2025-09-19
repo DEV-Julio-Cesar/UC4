@@ -1,7 +1,7 @@
 import promptSync from 'prompt-sync'
 const prompt = promptSync()
 
-let cardapio = []//xdsff
+let cardapio = []//xdsffssss
 let semana = ['segunda', 'terca','quarta','quinta','sexta','sabado','domingo']
 let turno = ['cafe', 'almoco', 'jantar']
 for(let i = 0; i < 7; i++){// dias da semana

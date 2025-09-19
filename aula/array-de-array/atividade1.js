@@ -1,7 +1,7 @@
 import promptSync from 'prompt-sync'
 const prompt = promptSync()
 
-let cardapio = []//xdsffssss1
+let cardapio = []
 let semana = ['segunda', 'terca','quarta','quinta','sexta','sabado','domingo']
 let turno = ['cafe', 'almoco', 'jantar']
 for(let i = 0; i < 7; i++){// dias da semana
@@ -13,26 +13,26 @@ for(let i = 0; i < 7; i++){// dias da semana
 }
 console.table(cardapio) // mostra no formato tabela
 
-let dia = prompt(`Digite sua opção para substituir cadapio digite o dia: `).toLowerCase()
-let refeicao = prompt(`Digite sua opção para substituir cadapio digite a refeição: `).toLowerCase()
-cardapio[0].splice(cardapio[0].indexOf('pao'), 1) // remoção com busca
-let i = semana.splice(dia)
-let j = turno.splice(refeicao)
-switch(refeicao){
+let dias = prompt(`Digite sua opção para substituir cadapio digite o dia: `)
+let refeicaos = prompt(`Digite sua opção para substituir cadapio digite a refeição: `).toLowerCase()
+cardapio[0].splice(cardapio[0]('pao'), 1) // remoção com busca
+let is = semana.splice(dias)
+let js = turno.splice(refeicaos)
+switch(refeicaos){
     case "cafe":
-        cardapio[i][j] = prompt ("remova o cafe")
+        cardapio[is][js] = prompt ("remova o cafe")
         break
         case "almoco":
-        cardapio[[i]][[j]] = prompt ("remova o almoço")
+        cardapio[[is]][[js]] = prompt ("remova o almoço")
         break
         case "jantar":
-        cardapio[[i]][[j]] = prompt ("remova a janta")
+        cardapio[[is]][[js]] = prompt ("remova a janta")
         break
 }
 console.table(cardapio)
 
 
-let dia = prompt(`Digite sua opção para substituir cadapio digite o dia: `).toLowerCase()
+let dia = prompt(`Digite sua opção para substituir cadapio digite o dia: `)
 let refeicao = prompt(`Digite sua opção para substituir cadapio digite a refeição: `).toLowerCase()
 let i = semana.indexOf(dia)
 let j = turno.indexOf(refeicao)

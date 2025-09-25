@@ -1,0 +1,36 @@
+import promptSync from 'prompt-sync'
+const prompt = promptSync()
+
+// export class Carro{
+//     cor
+//     modelo
+//     placa
+//     numPortas
+
+//     imprimir(){
+//         console.log(`COR: ${this.cor}\nMODELO: ${this.modelo}\nPLACA: ${this.placa}\nNUMERO DE PORTAS: ${this.numPortas}`)
+//     }
+export class Pessoa{
+    constructor(nome,altura,raca){
+        this.nome = nome
+        this.altura = altura
+        this.raca =raca
+
+    }
+
+}
+
+
+//}
+
+// let objetocarro = new Carro()
+// objetocarro.cor = prompt('Digite a cor do Carro: ')
+// objetocarro.modelo = prompt('Digite o modelo do Carro: ')
+// objetocarro.placa = prompt('Digite a placa do Carro: ')
+// objetocarro.numPortas = prompt('Digite o numero de portas no Carro: ')
+// objetocarro.imprimir()
+
+let nome = prompt('Digite seu nome: ')
+let objetopessoa = new Pessoa(nome, prompt('Digite a altura: ', 'negao'))
+objetopessoa.raca = 'negao'
+console.log(`Nome: ${objetopessoa.nome}\nAltura: ${objetopessoa.altura}\nRaça: ${objetopessoa.raca}`)

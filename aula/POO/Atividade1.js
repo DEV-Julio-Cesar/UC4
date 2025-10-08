@@ -20,20 +20,20 @@ function obterDadosCliente() {
 
 function main() {
     console.log("--- Cadastro do Cliente 1 ---")
-    const cliente1 = obterDadosCliente(); // Chama a função para o primeiro cliente [cite: 124]
+    const cliente1 = obterDadosCliente(); // Chama a função para o primeiro cliente
 
     console.log("\n--- Cadastro do Cliente 2 ---")
-    const cliente2 = obterDadosCliente(); // Chama a função para o segundo cliente [cite: 124]
+    const cliente2 = obterDadosCliente(); // Chama a função para o segundo cliente
 
     console.log("\n===================================")
     console.log("Informações dos Clientes Cadastrados")
     console.log("===================================")
 
     console.log("\n--- Cliente 1 ---")
-    cliente1.imprimirInfo(); // Imprime as informações [cite: 125]
+    cliente1.imprimirInfo(); // Imprime as informações do priomeiro cliente
 
     console.log("\n--- Cliente 2 ---")
-    cliente2.imprimirInfo(); // Imprime as informações [cite: 125]
+    cliente2.imprimirInfo(); // Imprime as informações do segundo cliente
 }
 
 main()

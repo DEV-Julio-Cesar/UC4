@@ -97,7 +97,7 @@ while (executando) {
                         try {
                             const checkIn = new Date(dataInStr)
                             const checkOut = new Date(dataOutStr)
-                            hotel.reservarQuarto(quartoDesejado, checkIn, checkOut, novoCliente)
+                            Pousada.reservarQuarto(quartoDesejado, checkIn, checkOut, novoCliente)
                         } catch (error) {
                             console.log(`\n❌ ERRO: ${error.message}`)
                         }
@@ -120,7 +120,7 @@ while (executando) {
 
                     case '4':
                     case 'disponivel':
-                        hotel.listarQuartosDisponiveis()
+                        hotel.listarQuartos()
                         break
 
                     case '5':

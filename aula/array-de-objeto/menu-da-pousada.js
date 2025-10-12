@@ -1,13 +1,10 @@
 import PromptSync from "prompt-sync"
 const prompt = PromptSync()
 
-
 import { Cliente } from './sistema-pousada-class.js'
 import { Quarto } from './sistema-pousada-class.js'
-import { Reserva } from './sistema-pousada-class.js'
 import { Pousada } from './sistema-pousada-class.js'
-
-
+import { DataInvalidaError } from './sistema-pousada-class.js'
 
 const hotel = new Pousada('Gostoso Paradise', [], [])
 hotel.adicionarQuarto(new Quarto(101, 'Solteiro', 120.00))
@@ -16,7 +13,37 @@ hotel.adicionarQuarto(new Quarto(310, 'Luxo', 250.00))
 
 let executando = true
 
-// 2. Loop principal do Menu
+function getNumeroValido(mensagem) {
+    let entrada = prompt(mensagem)
+    // Verifica se a string está vazia antes de tentar converter
+    if (entrada.trim() === '') return null
+    
+    let num = parseFloat(entrada)
+    if (isNaN(num) || num <= 0) {
+        console.log('⚠️ Erro: Entrada inválida. Digite um número maior que zero.')
+        return null
+    }
+    return num
+}
+
+function listarReservasECancelar() {
+    // Retorna o número de reservas para evitar chamar o método listando duas vezes
+    if (hotel.listarReservas() === 0) return
+
+    const entradaIdx = getNumeroValido('Digite o NÚMERO (da lista acima) para cancelar: ') 
+    if (entradaIdx === null) return
+
+    const idx = entradaIdx - 1
+    const reservaParaCancelar = hotel.reservas[idx]
+    
+    // Otimização: chama o método na Pousada e usa o retorno booleano
+    if (reservaParaCancelar) {
+        hotel.cancelarReserva(reservaParaCancelar)
+    } else {
+        console.log('⚠️ Erro: Número da reserva inválido.')
+    }
+}
+
 while (executando) {
     console.log('\n=====================================')
     console.log(`   SISTEMA DE RESERVAS - ${hotel.nome}`)
@@ -27,135 +54,135 @@ while (executando) {
     console.log('0. Sair')
     console.log('-------------------------------------')
 
-    // CORREÇÃO B: Trocando lerEntrada por prompt
     const perfil = prompt('Digite a opção do perfil: ')
 
-    switch (perfil) {
-        case '1':
-        case '2':
-            let continuarMenuPerfil = true
-            while (continuarMenuPerfil) {
-                console.log('\n--- MENU DE OPÇÕES ---')
+    if (perfil === '0') {
+        executando = false
+        console.log('Saindo do Sistema...')
+        break
+    }
+
+    if (perfil !== '1' && perfil !== '2') {
+        console.log('Perfil inválido. Tente novamente.')
+        continue
+    }
+
+    let continuarMenuPerfil = true
+    while (continuarMenuPerfil) {
+        console.log('\n--- MENU DE OPÇÕES ---')
+        if (perfil === '1') {
+            console.log('1. ADICIONAR NOVO QUARTO')
+            console.log('2. FAZER RESERVA')
+            console.log('3. CANCELAR RESERVA')
+            console.log('4. LISTAR QUARTOS DISPONÍVEIS')
+            console.log('5. LISTAR TODAS AS RESERVAS')
+            console.log('6. MOSTRAR DETALHES DE UMA RESERVA')
+            console.log('7. Voltar ao menu de Perfil')
+        } else {
+            console.log('2. FAZER RESERVA')
+            console.log('3. CANCELAR MINHA RESERVA')
+            console.log('4. LISTAR QUARTOS DISPONÍVEIS')
+            console.log('7. Voltar ao menu de Perfil')
+        }
+        console.log('-------------------------------------')
+
+        const opcao = prompt('Digite a opção desejada: ')
+
+        switch (opcao) {
+            case '1':
                 if (perfil === '1') {
-                    console.log('1. ADICIONAR NOVO QUARTO (1)')
-                    console.log('2. FAZER RESERVA (1)(2)')
-                    console.log('3. CANCELAR RESERVA (1)(2)')
-                    console.log('4. LISTAR QUARTOS DISPONÍVEIS (1)(2)')
-                    console.log('5. LISTAR TODAS AS RESERVAS (1)')
-                    console.log('6. MOSTRAR DETALHES DE UMA RESERVA')
-                    console.log('7. Voltar ao menu de Perfil')
+                    const num = getNumeroValido('Número do novo quarto: ')
+                    if (num === null) break
+
+                    const tipo = prompt('Tipo do Quarto (Solteiro/Duplo/Luxo): ')
+                    const preco = getNumeroValido('Preço da diária: ')
+                    if (preco === null) break
+                    
+                    hotel.adicionarQuarto(new Quarto(num, tipo, preco))
                 } else {
-                    console.log('2. FAZER RESERVA (2)')
-                    console.log('3. CANCELAR RESERVA (2)')
-                    console.log('4. LISTAR QUARTOS DISPONÍVEIS (2)')
-                    console.log('7. Voltar ao menu de Perfil')
+                    console.log('Opção inválida para o perfil Cliente.')
                 }
+                break
 
-                let opcao = prompt('Digite a opção desejada: ') // CORREÇÃO B
+            case '2':
+                console.log('\n--- DADOS DO CLIENTE ---')
+                const nome = prompt('Nome do Cliente: ')
+                const cpf = prompt('CPF: ')
+                const contato = prompt('Contato (telefone/email): ')
+                const novoCliente = new Cliente(nome, cpf, contato)
 
-                if (perfil === '2') {
-                    if (opcao === '2') opcao = 'reserva'
-                    else if (opcao === '3') opcao = 'cancelar'
-                    else if (opcao === '4') opcao = 'disponivel'
-                    else if (opcao === '7') opcao = 'voltar'
-                    else {
-                        console.log('Opção inválida para o perfil Cliente.')
-                        continue
+                console.log('\n--- DADOS DA RESERVA ---')
+                hotel.listarQuartos()
+                const numQuarto = getNumeroValido('Número do Quarto desejado: ')
+                if (numQuarto === null) break
+                
+                const quartoDesejado = hotel.quartos.find(q => q.numero === numQuarto)
+                
+                if (!quartoDesejado) {
+                    console.log('⚠️ Erro: Quarto não encontrado na lista do hotel.')
+                    break
+                }
+                
+                const dataInStr = prompt('Data de Check-In (AAAA/MM/DD): ')
+                const dataOutStr = prompt('Data de Check-Out (AAAA/MM/DD): ')
+
+                try {
+                    const checkIn = new Date(dataInStr)
+                    const checkOut = new Date(dataOutStr)
+
+                    if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+                         throw new DataInvalidaError('Formato de data inválido. Use AAAA/MM/DD.')
                     }
+
+                    hotel.adicionarReserva(quartoDesejado, checkIn, checkOut, novoCliente)
+
+                } catch (error) {
+                    console.log(`\n❌ ERRO DE RESERVA: ${error.message}`)
                 }
+                break
 
-                switch (opcao) {
-                    case '1':
-                        if (perfil === '1') {
-                            const num = parseInt(prompt('Número do novo quarto: ')) // CORREÇÃO B
-                            const tipo = prompt('Tipo do Quarto (Solteiro/Duplo/Luxo): ') // CORREÇÃO B
-                            const preco = parseFloat(prompt('Preço da diária: ')) // CORREÇÃO B
-                            hotel.adicionarQuarto(new Quarto(num, tipo, preco))
-                        }
-                        break
+            case '3':
+                listarReservasECancelar()
+                break
 
-                    case '2':
-                    case 'reserva':
-                        console.log('\n--- DADOS DO CLIENTE ---')
-                        const nome = prompt('Nome do Cliente: ') // CORREÇÃO B
-                        const cpf = prompt('CPF: ') // CORREÇÃO B
-                        const contato = prompt('Contato (telefone/email): ') // CORREÇÃO B
-                        const novoCliente = new Cliente(nome, cpf, contato)
+            case '4':
+                hotel.listarQuartosDisponiveis()
+                break
 
-                        console.log('\n--- DADOS DA RESERVA ---')
-                        const numQuarto = parseInt(prompt('Número do Quarto desejado: ')) // CORREÇÃO B
-                        const dataInStr = prompt('Data de Check-In (AAAA/MM/DD): ') // CORREÇÃO B
-                        const dataOutStr = prompt('Data de Check-Out (AAAA/MM/DD): ') // CORREÇÃO B
-
-                        const quartoDesejado = hotel.quartos.find(q => q.numero === numQuarto)
-                        
-                        if (!quartoDesejado) {
-                            console.log('⚠️ Erro: Quarto não encontrado na lista do hotel.')
-                            break
-                        }
-
-                        try {
-                            const checkIn = new Date(dataInStr)
-                            const checkOut = new Date(dataOutStr)
-                            Pousada.reservarQuarto(quartoDesejado, checkIn, checkOut, novoCliente)
-                        } catch (error) {
-                            console.log(`\n❌ ERRO: ${error.message}`)
-                        }
-                        break
-
-                    case '3':
-                    case 'cancelar':
-                        hotel.listarReservas()
-                        if (hotel.reservas.length === 0) break
-                        
-                        const idx = parseInt(prompt('Digite o NÚMERO da reserva (da lista acima) para cancelar: ')) - 1 // CORREÇÃO B
-                        const reservaParaCancelar = hotel.reservas[idx]
-                        
-                        if (reservaParaCancelar) {
-                            hotel.cancelarReserva(reservaParaCancelar)
-                        } else {
-                            console.log('⚠️ Erro: Número da reserva inválido.')
-                        }
-                        break
-
-                    case '4':
-                    case 'disponivel':
-                        hotel.listarQuartos()
-                        break
-
-                    case '5':
-                        if (perfil === '1') {
-                            hotel.listarReservas()
-                        }
-                        break
-
-                    case '6':
-                        if (perfil === '1') {
-                            hotel.listarReservas()
-                            if (hotel.reservas.length === 0) break
-
-                            const infoIdx = parseInt(prompt('Digite o NÚMERO da reserva (da lista acima) para ver os detalhes: ')) - 1 // CORREÇÃO B
-                            hotel.informacoesReserva(hotel.reservas[infoIdx])
-                        }
-                        break
-
-                    case '7':
-                    case 'voltar':
-                        continuarMenuPerfil = false
-                        break
-                        
-                    default:
-                        console.log('Opção inválida. Tente novamente.')
+            case '5':
+                if (perfil === '1') {
+                    hotel.listarReservas()
+                } else {
+                    console.log('Opção inválida para o perfil Cliente.')
                 }
-            }
-            break
+                break
 
-        case '0':
-            executando = false
-            console.log('Saindo do Sistema...')
-            break
+            case '6':
+                if (perfil === '1') {
+                    if (hotel.listarReservas() === 0) break
 
-        default:
-            console.log('Perfil inválido. Tente novamente.')
+                    const infoEntrada = getNumeroValido('Digite o NÚMERO (da lista acima) para ver os detalhes: ') 
+                    if (infoEntrada === null) break
+                    
+                    const infoIdx = infoEntrada - 1
+                    const reservaParaDetalhe = hotel.reservas[infoIdx]
+                    
+                    if (reservaParaDetalhe) {
+                        reservaParaDetalhe.mostrarInfo()
+                    } else {
+                        console.log('Número de reserva inválido.')
+                    }
+                } else {
+                    console.log('Opção inválida para o perfil Cliente.')
+                }
+                break
+
+            case '7':
+                continuarMenuPerfil = false
+                break
+                
+            default:
+                console.log('Opção inválida. Tente novamente.')
+        }
     }
 }

@@ -6,10 +6,11 @@ import { Quarto } from './sistema-pousada-class.js'
 import { Pousada } from './sistema-pousada-class.js'
 import { DataInvalidaError } from './sistema-pousada-class.js'
 
-const hotel = new Pousada('Gostoso Paradise', [], [])
+const hotel = new Pousada('Gostoso Paradise', [], [], [])
 hotel.adicionarQuarto(new Quarto(101, 'Solteiro', 120.00))
 hotel.adicionarQuarto(new Quarto(205, 'Duplo', 180.00))
 hotel.adicionarQuarto(new Quarto(310, 'Luxo', 250.00))
+hotel.adicionarQuarto(new Quarto(1, 'luxo', 850.00))
 
 let executando = true
 
@@ -20,7 +21,7 @@ function getNumeroValido(mensagem) {
     
     let num = parseFloat(entrada)
     if (isNaN(num) || num <= 0) {
-        console.log('⚠️ Erro: Entrada inválida. Digite um número maior que zero.')
+        console.log(' Erro: Entrada inválida. Digite um número maior que zero.')
         return null
     }
     return num
@@ -40,7 +41,7 @@ function listarReservasECancelar() {
     if (reservaParaCancelar) {
         hotel.cancelarReserva(reservaParaCancelar)
     } else {
-        console.log('⚠️ Erro: Número da reserva inválido.')
+        console.log(' Erro: Número da reserva inválido.')
     }
 }
 
@@ -119,7 +120,7 @@ while (executando) {
                 const quartoDesejado = hotel.quartos.find(q => q.numero === numQuarto)
                 
                 if (!quartoDesejado) {
-                    console.log('⚠️ Erro: Quarto não encontrado na lista do hotel.')
+                    console.log(' Erro: Quarto não encontrado na lista do hotel.')
                     break
                 }
                 
@@ -137,7 +138,7 @@ while (executando) {
                     hotel.adicionarReserva(quartoDesejado, checkIn, checkOut, novoCliente)
 
                 } catch (error) {
-                    console.log(`\n❌ ERRO DE RESERVA: ${error.message}`)
+                    console.log(`\n ERRO DE RESERVA: ${error.message}`)
                 }
                 break
 

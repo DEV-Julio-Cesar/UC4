@@ -1,24 +1,3 @@
-// Classes de Erro Customizadas
-
-export class QuartoOcupadoError extends Error {
-    constructor(quartoNumero, checkIn, checkOut) {
-        super(`O Quarto ${quartoNumero} já está reservado no período de ${checkIn.toLocaleDateString('pt-BR')} a ${checkOut.toLocaleDateString('pt-BR')}.`)
-        this.name = 'QuartoOcupadoError'
-        this.quartoNumero = quartoNumero
-        this.checkIn = checkIn
-        this.checkOut = checkOut
-    }
-}
-
-export class DataInvalidaError extends Error {
-    constructor(message) {
-        super(message)
-        this.name = 'DataInvalidaError'
-    } 
-}
-
-// Classes de Domínio
-
 export class Cliente {
     constructor(nome, cpf, contato) {
         this.nome = nome
@@ -65,11 +44,11 @@ export class Pousada {
     
     adicionarQuarto(quarto) {
         if (this.quartos.some(q => q.numero === quarto.numero)) {
-            console.log(`⚠️ Aviso: Quarto de número ${quarto.numero} já existe e não foi adicionado.`)
+            console.log(` Aviso: Quarto de número ${quarto.numero} já existe e não foi adicionado.`)
             return
         }
         this.quartos.push(quarto)
-        console.log(`✅ Quarto ${quarto.numero} adicionado.`)
+        console.log(` Quarto ${quarto.numero} adicionado.`)
     }
     
     listarQuartos() {
@@ -88,10 +67,10 @@ export class Pousada {
             throw new DataInvalidaError('Data de Check-Out deve ser posterior à Data de Check-In.')
         }
     }
-
+    
     verificarQuartoOcupado(quarto, dataCheckIn, dataCheckOut) {
         for (let reserva of this.reservas) {
-                if (reserva.quarto.numero === quarto.numero) {
+            if (reserva.quarto.numero === quarto.numero) {
                 if ((dataCheckIn < reserva.dataCheckOut) && (dataCheckOut > reserva.dataCheckIn)) {
                     throw new QuartoOcupadoError(quarto.numero, dataCheckIn, dataCheckOut)
                 }
@@ -105,14 +84,14 @@ export class Pousada {
         
         const novaReserva = new Reserva(quarto, checkIn, checkOut, cliente)
         this.reservas.push(novaReserva)
-        console.log(`\n✅ Reserva do Quarto ${quarto.numero} adicionada com sucesso.`)
+        console.log(`\n Reserva do Quarto ${quarto.numero} adicionada com sucesso.`)
     }
     
     cancelarReserva(reserva) {
         const index = this.reservas.indexOf(reserva)
         if (index !== -1) {
             this.reservas.splice(index, 1)
-            console.log(`✅ Reserva de ${reserva.cliente.nome} cancelada.`)
+            console.log(` Reserva de ${reserva.cliente.nome} cancelada.`)
             return true
         }
         // Retorna false se a reserva não for encontrada (útil para o arquivo de menu)
@@ -144,4 +123,20 @@ export class Pousada {
             console.log('Não há quartos disponíveis no momento.')
         }
     }
+}
+export class QuartoOcupadoError extends Error {
+    constructor(quartoNumero, checkIn, checkOut) {
+        super(`O Quarto ${quartoNumero} já está reservado no período de ${checkIn.toLocaleDateString('pt-BR')} a ${checkOut.toLocaleDateString('pt-BR')}.`)
+        this.name = 'QuartoOcupadoError'
+        this.quartoNumero = quartoNumero
+        this.checkIn = checkIn
+        this.checkOut = checkOut
+    }
+}
+
+export class DataInvalidaError extends Error {
+    constructor(message) {
+        super(message)
+        this.name = 'DataInvalidaError'
+    } 
 }

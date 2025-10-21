@@ -1,0 +1,45 @@
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo  -  Aplicação Desktop</title>
+    <head>
+    <body>
+        <h1>Brincando com HTML</h1>       
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" placeholder="Adicione seu nome">
+        <br><br>
+        <button style="background-color: hwb(128 4% 14% / 0.663); color: #cf101a;" id ="botão" onclick="pegaNome()"> Enviar </button>
+        <br>><br>
+        <p id ="Texto"></p>
+
+        <script>
+            function pegaNome(){
+                let conteudo = document.getElementById("nome").value
+                alert(`Olá, ${conteudo}! Julio Arrasa`)
+                document.getElementById('nome').value = ""
+                document.getElementById('texto').innerText = `Olá, ${conteudo}! Julio Arrasa`
+            }
+        </script>
+        <label for="nome">Nome:</label>
+        <input type="text" id="numero" placeholder="Adicione um numero">]
+        <br><br>
+        <button style="background-color: #4CAF50; color: #550acf;" id ="botão" onclick="verificarNumero()"> Enviar </button>
+        <br>><br>
+        <p id ="Texto"></p>
+        <script>
+            function verificarNumero(){
+                let conteudo = document.getElementById("numero").value
+                if (isNaN(conteudo)){
+                    alert(`Isso não é um número!`)
+                } else {
+                    alert (`Obrigado por inserir um número!`)
+                }
+                document.getElementById('numero').value = ""
+            }
+            </script>
+    </body>
+</html>

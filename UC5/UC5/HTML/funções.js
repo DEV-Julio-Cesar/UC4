@@ -63,3 +63,34 @@
                 alert(`A temperatura em Kelvin é: ${kelvin.toFixed(2)}K`)
                 document.getElementById('kelvin').innerText = `A temperatura em Kelvin é: ${kelvin.toFixed(2)}K`
             }
+            function calcularDolares(){
+                let reais = Number(document.getElementById("dinheiro").value)
+                let dolares = reais / 5.424
+                alert(`O valor em Dólares é: $${dolares.toFixed(2)}`)
+                document.getElementById('dolares').innerText = `O valor em Dólares é: $${dolares.toFixed(2)}`
+            }
+            function calcularEuros(){
+                let reais = parseFloat(document.getElementById("dinheiro").value)
+                let euros = reais / 6.353
+                alert(`O valor em Euros é: €${euros.toFixed(2)}`)
+                document.getElementById('euros').innerText = `O valor em Euros é: €${euros.toFixed(2)}`
+            }
+            function calcularPesos(){
+                let reais = parseFloat(document.getElementById("dinheiro").value)
+                let pesos = reais / 0.0042
+                alert(`O valor em Pesos Argentinos é: $${pesos.toFixed(2)}`)
+                document.getElementById('pesos').innerText = `O valor em Pesos Argentinos é: $${pesos.toFixed(2)}`
+            }
+
+            function calcularLibras(){
+                let reais = parseFloat(document.getElementById("dinheiro").value)
+                let libras = reais / 7.326
+                alert(`O valor em Libras é: £${libras.toFixed(2)}`)
+                document.getElementById('libras').innerText = `O valor em Libras é: £${libras.toFixed(2)}`
+            }
+            function calcularFrancos(){
+                let reais = parseFloat(document.getElementById("dinheiro").value)
+                let francos = reais / 6.753
+                alert(`O valor em Francos Suíços é: CHF${francos.toFixed(2)}`)
+                document.getElementById('francos').innerText = `O valor em Francos Suíços é: ${francos.toFixed(2)}`
+            }

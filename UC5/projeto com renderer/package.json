@@ -13,14 +13,14 @@
     "url": "git+https://github.com/DEV-Julio-Cesar/UC4.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Julio Cesar",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/DEV-Julio-Cesar/UC4/issues"
   },
   "homepage": "https://github.com/DEV-Julio-Cesar/UC4#readme",
   "dependencies": {
-    "electron": "^38.3.0",
+    "electron": "^39.0.0",
     "prompt-sync": "^4.2.0"
   }
 }

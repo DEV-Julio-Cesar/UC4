@@ -1,7 +1,14 @@
-import {app, BrowserWindow} from 'electron'
- 
-const __dirname
+import {app, BrowserWindow, nativeTheme} from 'electron'
+ import path from 'node:path'
+ import {fileURLToPath} from 'node:url'
+
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
+
 function criarJanela(){
+    nativeTheme.themeSource = 'dark'
+
+    
     const janela = new BrowserWindow({
         width: 800, height: 800,
         title: "Exemplo - Aplicação Desktop",      
@@ -9,7 +16,10 @@ function criarJanela(){
             nodeIntegration: false,
             contextIsolation: true,
             devTools: true,
-            preload: `${__dirname}/preload.js`
+            preload: path.join(__dirname, `preload.js`),
+            sandbox: false
+
+
         }
     })
     janela.loadFile('index.html')

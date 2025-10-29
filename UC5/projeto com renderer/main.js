@@ -9,6 +9,7 @@ function criarJanela(){
     nativeTheme.themeSource = 'dark'
 
     
+
     const janela = new BrowserWindow({
         width: 800, height: 800,
         title: "Exemplo - Aplicação Desktop",      

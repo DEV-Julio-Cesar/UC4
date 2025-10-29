@@ -33,7 +33,7 @@
 
             } 
             function verificarNumero(){
-                let conteudo = document.getElementById("numero").value
+                let conteudo = Number(document.getElementById("numero")).value)
                 if (isNaN(conteudo)){
                     alert(`Isso não é um número!`)
                 } else {

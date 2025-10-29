@@ -5,8 +5,8 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-    ,"start": "electron main.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron main.js"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/koldrinegao/UC4#readme",
   "dependencies": {
-    "electron": "^38.3.0",
+    "electron": "^38.4.0",
     "prompt-sync": "^4.2.0"
   }
 }

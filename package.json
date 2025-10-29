@@ -19,8 +19,7 @@
   },
   "homepage": "https://github.com/koldrinegao/UC4#readme",
   "dependencies": {
-    "electron": "^38.3.0",
+    "electron": "^38.4.0",
     "prompt-sync": "^4.2.0"
-  },
-  "devDependencies": {}
+  }
 }

@@ -23,7 +23,7 @@ function criarJanela(){
 
         }
     })
-    janela.loadFile('index.html')
+    janela.loadFile('calculadora.html')
     janela.webContents.openDevTools()
     janela.removeMenu()
 }

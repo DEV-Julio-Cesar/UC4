@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron main.js"
+    "start": "electronmon main.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/DEV-Julio-Cesar/UC4#readme",
   "dependencies": {
     "electron": "^39.0.0",
+    "electronmon": "^2.0.4",
     "prompt-sync": "^4.2.0"
   }
 }

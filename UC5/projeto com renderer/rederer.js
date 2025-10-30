@@ -1,18 +1,43 @@
 
-console.log(`SO ${process.platform}`)
+        let currentOperation = null
+        let firstOperand = null
 
-console.log(`ELECTRON - ${window.api.versaoElectron()}`)
+        function appendNumber(number) {
+            document.getElementById('display').value += number
+        }
 
-console.log(`NODE - ${process.versions.node}`)
+        function setOperation(operator) {
+            firstOperand = Number(document.getElementById('display').value)
+            currentOperation = operator 
+            document.getElementById('display').value = ''
+        }
 
-document.getElementById('texto').innerHTML = `so: ${process.platform} \n Electron: ${process.versions.electron} \n Node: ${process.versions.node}`
+        function calculateResult() {
+            const secondOperand = Number(document.getElementById('display').value)
+            let result
+            switch (currentOperation) {
+                case '+':
+                    result = `${window.api.soma(firstOperand,secondOperand)}`
+                    break;
+                case '-':
+                    result = `${window.api.subtracao(firstOperand,secondOperand)}`
+                    break;
+                case '*':
+                    result = `${window.api.multiplicacao(firstOperand,secondOperand)}`
+                    break;
+                case '/':
+                    result = `${window.api.divicao(firstOperand,secondOperand)}`
+                    break;
+                default:
+                    return;
+            }
+            document.getElementById('display').value = result
+            currentOperation = null
+            firstOperand = null
+        }
 
-console.log(`Aplicação: ${window.api.versaoNode()}`)
-console.log(`Aplicação: ${window.api.versaoElectron()}`)
-console.log(`Aplicação: ${window.api.nome}`)
-
-function soma(){
-    let a = 5
-    let b = 13
-    document.getElementById('texto').innerHTML = `${window.api.som(a,b)}`
-}
+        function clearDisplay() {
+            document.getElementById('display').value = ''
+            currentOperation = null
+            firstOperand = null
+        }

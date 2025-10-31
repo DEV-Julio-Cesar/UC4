@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Adivinhação (Adivinhe o Número)</title>
+    <link rel="icon" href="./icon.png">
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f4f7f6; }
+        .game-container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); max-width: 400px; text-align: center; }
+        input[type="number"] { width: 80%; padding: 10px; margin: 15px 0; border: 2px solid #ccc; border-radius: 5px; font-size: 1.2em; text-align: center; }
+        .controls { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 1em; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
+        #checkBtn { background-color: #4CAF50; color: white; }
+        #clearBtn { background-color: #f44336; color: white; }
+        #hintBtn { background-color: #ff9800; color: white; display: none; } /* Inicia oculto */
+        #message, #attempts, #hintMessage { margin-top: 15px; padding: 10px; border-radius: 5px; font-weight: bold; }
+        #message.win { background-color: #e8f5e9; color: #388e3c; }
+        #message.lose { background-color: #ffebee; color: #d32f2f; }
+        #attempts { background-color: #bbdefb; color: #1565c0; }
+        #hintMessage { background-color: #fff3e0; color: #e65100; display: none; } /* Inicia oculto */
+        .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; width: 100%; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h2>Adivinhe um número entre 1 e 100!</h2>
+        <input type="number" id="guessInput" min="1" max="100" placeholder="Seu palpite">
+        
+        <div class="controls">
+            <button id="checkBtn" onclick="checkGuess()">Verificar</button>
+            <button id="clearBtn" onclick="clearInput()">Limpar</button>
+            <button id="hintBtn" onclick="showHint()">Dica</button>
+        </div>
+        
+        <div id="attempts">Tentativas: 0</div>
+        <div id="message"></div>
+        <div id="hintMessage"></div>
+    </div>
+
+    <div class="footer">
+        <h3>Jogo da Adivinhação de Número</h3>
+        <p>Versão: 1.0.0</p>
+        <p>Tecnologia: Electron (Main/Preload/Renderer)</p>
+    </div>
+    <div></div>
+
+    <script src="rederer.js"></script>
+</body>
+        
+</html>

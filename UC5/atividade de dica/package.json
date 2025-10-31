@@ -1,0 +1,27 @@
+{
+  "name": "uc5",
+  "version": "1.0.0",
+  "description": "UC5",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electronmon main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DEV-Julio-Cesar/UC4.git"
+  },
+  "keywords": [],
+  "author": "Julio Cesar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DEV-Julio-Cesar/UC4/issues"
+  },
+  "homepage": "https://github.com/DEV-Julio-Cesar/UC4#readme",
+  "dependencies": {
+    "electron": "^39.0.0",
+    "electronmon": "^2.0.4",
+    "prompt-sync": "^4.2.0"
+  }
+}

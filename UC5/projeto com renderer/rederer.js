@@ -1,3 +1,4 @@
+
 let currentOperation = null
         let firstOperand = null
         // Captura o elemento do display uma única vez
@@ -39,6 +40,7 @@ let currentOperation = null
             }
 
             display.value += number
+            
         }
 
         function setOperation(operator) {
@@ -100,3 +102,6 @@ let currentOperation = null
         if (display) {
              clearDisplay();
         }
+        function mudarTema() {
+            window.api.tema();
+}

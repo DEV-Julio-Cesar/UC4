@@ -1,5 +1,5 @@
-import {app, BrowserWindow, nativeTheme} from 'electron'
- import path from 'node:path'
+import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron';
+import path from 'node:path';
  import {fileURLToPath} from 'node:url'
 
     const __filename = fileURLToPath(import.meta.url)
@@ -35,5 +35,12 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     if(process.platform !== 'darwin'){
         app.quit()
+    }
+})
+ipcMain.on('tema', () => {
+    if ( nativeTheme.themeSource === 'light') {
+          nativeTheme.themeSource = 'dark'
+    }else {
+        nativeTheme.themeSource = 'light'
     }
 })

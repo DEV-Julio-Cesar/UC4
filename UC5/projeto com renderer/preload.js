@@ -1,4 +1,4 @@
-import {contextBridge} from 'electron'
+import {contextBridge, ipcRenderer} from 'electron'
 
 
 contextBridge.exposeInMainWorld('api', {
@@ -6,9 +6,7 @@ contextBridge.exposeInMainWorld('api', {
     subtracao: sub,
     multiplicacao: mult,
     divicao: div,
-    calcular: (entrada) => {
-        return eval(entrada)
-    }
+    tema: () => ipcRenderer.send('tema')
 
 })
 function som(a,b){

@@ -1,5 +1,5 @@
 // preload.js
-const { contextBridge } = require('electron');
+const { contextBridgem, ipcRenderer } = require('electron');
 
 // --- Variáveis de Estado do Jogo ---
 let secretNumber = 0
@@ -92,6 +92,7 @@ contextBridge.exposeInMainWorld('gameApi', {
     generateRandomNumber: generateRandomNumber,
     checkGuess: checkGuess,
     getHint: getHint,
+    tema: () => ipcRenderer.send('tema'),
     // Função utilitária para resetar e iniciar novo jogo pelo renderer
     resetGame: () => {
         generateRandomNumber();

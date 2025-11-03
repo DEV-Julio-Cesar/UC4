@@ -1,5 +1,5 @@
 // main.js
-import { app, BrowserWindow, nativeTheme } from 'electron';
+import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron';
 import path from 'node:path';
 
 // Define o diretório base para carregar o preload.js
@@ -42,4 +42,7 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
+});
+ipcMain.on('tema', () => {
+    nativeTheme.themeSource = 'dark'
 });

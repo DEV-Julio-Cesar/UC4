@@ -20,6 +20,7 @@
   "homepage": "https://github.com/koldrinegao/UC4#readme",
   "dependencies": {
     "electron": "^38.4.0",
+    "electronmon": "^2.0.4",
     "prompt-sync": "^4.2.0"
   }
 }

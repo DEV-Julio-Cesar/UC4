@@ -98,3 +98,8 @@ function startNewGame() {
 window.checkGuess = checkGuess;
 window.clearInput = clearInput;
 window.showHint = showHint;
+
+function mudarTema() {
+    alert("Tema alterado!");
+    window.gameApi.tema();
+}

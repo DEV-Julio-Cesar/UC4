@@ -1,0 +1,22 @@
+{
+  "name": "projeto-chat-electron",
+  "version": "1.0.0",
+  "description": "Chat de Atendimento Profissional WhatsApp com Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "electron",
+    "whatsapp",
+    "chat"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "electron": "^31.0.1",
+    "ws": "^8.18.3"
+  }
+}

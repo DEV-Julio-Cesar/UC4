@@ -1,35 +1,49 @@
 // preload.js - Script de Pré-carregamento (Ponte Segura IPC)
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expõe uma API 'whatsappAPI' no objeto window do Renderer
+// 🚨 CORREÇÃO: Unifique todas as funções em UMA ÚNICA EXPOSIÇÃO.
 contextBridge.exposeInMainWorld('whatsappAPI', {
-    /**
-     * Envia credenciais (Token e ID/Número de Telefone) para o Processo Principal.
-     * @param {string} token - Token de Acesso da Meta.
-     * @param {string} id - ID do Número de Telefone ou Número de Teste (55XX...).
-     * @returns {Promise<object>} - O resultado da operação de configuração.
-     */
+    
+    // --- FUNÇÕES DA CLOUD API (IPC Main.handle) ---
     configurarCredenciais: (token, id) => {
         return ipcRenderer.invoke('config-whatsapp-credentials', { token, id });
     },
-
-    /**
-     * Envia uma mensagem de chat para o Processo Principal, que a encaminhará para a API do WhatsApp.
-     * @param {string} numero - O número de telefone do destinatário.
-     * @param {string} mensagem - O texto da mensagem a ser enviada.
-     * @returns {Promise<object>} - O resultado da operação de envio (sucesso/erro).
-     */
+    
     enviarMensagem: (numero, mensagem) => {
-        // Usa ipcRenderer.invoke() para enviar uma mensagem assíncrona para o Main.
         return ipcRenderer.invoke('send-whatsapp-message', { numero, mensagem });
     },
 
     /**
-     * Assina um evento para receber novas mensagens do WhatsApp, retransmitidas do Main via WebSocket/IPC.
-     * @param {function} callback - Função para ser chamada quando uma nova mensagem chegar.
+     * Solicita ao Main Process para iniciar o processo de conexão via QR Code.
+     */
+    iniciarConexaoQRCode: () => {
+        return ipcRenderer.invoke('iniciar-qr-code-flow');
+    },
+
+    // 🚨 NOVO/CORRIGIDO: Função para buscar a lista de conversas
+    fetchChats: () => {
+        return ipcRenderer.invoke('fetch-whatsapp-chats');
+    },
+
+    // --- LISTENERS (IPC Main.send) ---
+    /**
+     * Assina um evento para receber novas mensagens do WhatsApp.
      */
     onNovaMensagemRecebida: (callback) => {
-        // Configura um ouvinte de eventos do Main.
         ipcRenderer.on('nova-mensagem-recebida', (event, mensagem) => callback(mensagem));
+    },
+
+    /**
+     * Assina um evento para receber a DataURL da imagem do QR Code.
+     */
+    onQRCodeReceived: (callback) => {
+        ipcRenderer.on('qr-code-data', (event, qrDataURL) => callback(qrDataURL));
+    },
+
+    /**
+     * Assina um evento para receber a notificação de que o WhatsApp está conectado.
+     */
+    onWhatsappReady: (callback) => {
+        ipcRenderer.on('whatsapp-ready', () => callback());
     }
 });

@@ -1,286 +1,291 @@
+// ...existing code...
 let isConnected = false;
 let activeChatNumber = null;
-let conversations = {}; // Armazena o histórico por número de telefone
+let conversations = {}; // histórico por número
+
+// DOM refs (pre-declared to be assigned on DOMContentLoaded)
+let statusText, statusEl, btnSettings, settingsModal, btnCancelSettings, connectionForm, inputToken, inputPhoneId, btnConnect;
+let conversationsContainer, mensagensDiv, chatForm, chatHeader, activeChatName, activeChatNumberEl, mensagemInput, placeholderChat;
+let btnGenerateQR, btnConnectQR, qrcodeImage, qrcodeMessage;
 
 document.addEventListener('DOMContentLoaded', () => {
-// Referências do DOM
-const statusText = document.getElementById('status-text');
-const btnSettings = document.getElementById('btn-settings');
-const settingsModal = document.getElementById('settings-modal');
-const btnCancelSettings = document.getElementById('btn-cancel-settings');
-const connectionForm = document.getElementById('connection-form');
-const inputToken = document.getElementById('input-token');
-const inputPhoneId = document.getElementById('input-phone-id');
-const conversationsContainer = document.getElementById('conversations-container');
-const mensagensDiv = document.getElementById('mensagens');
-const chatForm = document.getElementById('chat-form');
-const chatHeader = document.getElementById('chat-header');
-const activeChatName = document.getElementById('active-chat-name');
-const activeChatNumberEl = document.getElementById('active-chat-number');
-const mensagemInput = document.getElementById('mensagem-input');
-const placeholderChat = document.getElementById('placeholder-chat');
+    // --- DOM Refs ---
+    statusText = document.getElementById('status-text');
+    statusEl = document.getElementById('connection-status');
+    btnSettings = document.getElementById('btn-settings');
+    settingsModal = document.getElementById('settings-modal');
+    btnCancelSettings = document.getElementById('btn-cancel-settings');
+    connectionForm = document.getElementById('connection-form');
+    inputToken = document.getElementById('input-token');
+    inputPhoneId = document.getElementById('input-phone-id');
+    btnConnect = document.getElementById('btn-connect');
+    conversationsContainer = document.getElementById('conversations-container');
+    mensagensDiv = document.getElementById('mensagens');
+    chatForm = document.getElementById('chat-form');
+    chatHeader = document.getElementById('chat-header');
+    activeChatName = document.getElementById('active-chat-name');
+    activeChatNumberEl = document.getElementById('active-chat-number');
+    mensagemInput = document.getElementById('mensagem-input');
+    placeholderChat = document.getElementById('placeholder-chat');
 
-// Referências do QR Code
-const btnGenerateQR = document.getElementById('btn-generate-qr');
-const btnConnectQR = document.getElementById('btn-connect-qr');
-const qrcodeImage = document.getElementById('qrcode-image');
-const qrcodeMessage = document.getElementById('qrcode-message');
+    // QR refs
+    btnGenerateQR = document.getElementById('btn-generate-qr');
+    btnConnectQR = document.getElementById('btn-connect-qr');
+    qrcodeImage = document.getElementById('qrcode-image');
+    qrcodeMessage = document.getElementById('qrcode-message');
 
+    // --- Event listeners ---
+    btnSettings && btnSettings.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+    btnCancelSettings && btnCancelSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
 
+    connectionForm && connectionForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = inputToken.value.trim();
+        const phoneId = inputPhoneId.value.trim();
+        if (!token || !phoneId) return;
+        btnConnect.textContent = 'Conectando...';
+        try {
+            const resultado = await window.whatsappAPI.configurarCredenciais(token, phoneId);
+            if (resultado && resultado.sucesso) {
+                updateConnectionStatus(true);
+                settingsModal.classList.add('hidden');
+                await loadAndDisplayChats();
+            } else {
+                console.error('Erro de conexão:', resultado && resultado.erro);
+                updateConnectionStatus(false);
+            }
+        } catch (err) {
+            console.error('Erro interno ao configurar credenciais:', err);
+            updateConnectionStatus(false);
+        } finally {
+            btnConnect.textContent = 'Conectar API';
+        }
+    });
 
-// --- FUNÇÕES DE UTILITY ---
+    // QR Flow: iniciar
+    btnGenerateQR && btnGenerateQR.addEventListener('click', async () => {
+        btnGenerateQR.textContent = 'Gerando...';
+        btnGenerateQR.disabled = true;
+        qrcodeMessage && (qrcodeMessage.textContent = 'Aguarde a geração do QR Code...');
+        btnGenerateQR && btnGenerateQR.classList.add('hidden');
+        try {
+            const resultado = await window.whatsappAPI.iniciarConexaoQRCode();
+            console.log('QR Flow iniciado:', resultado);
+            qrcodeMessage && (qrcodeMessage.textContent = 'Inicialização bem-sucedida. Aguardando o QR Code...');
+            qrcodeImage && qrcodeImage.classList.add('hidden');
+            btnConnectQR && btnConnectQR.classList.add('hidden');
+        } catch (err) {
+            console.error('Falha ao iniciar QR Flow:', err);
+            qrcodeMessage && (qrcodeMessage.textContent = `[ERRO] Falha ao iniciar QR Flow: ${err.message || err}`);
+            if (btnGenerateQR) {
+                btnGenerateQR.textContent = 'Gerar Código QR';
+                btnGenerateQR.disabled = false;
+                btnGenerateQR.classList.remove('hidden');
+            }
+        }
+    });
+
+    btnConnectQR && btnConnectQR.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+    // Send message
+    chatForm && chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!isConnected || !activeChatNumber) return;
+        const texto = mensagemInput.value.trim();
+        if (!texto) return;
+        addMessageToHistory(activeChatNumber, { texto }, 'Eu', false);
+        mensagemInput.value = '';
+        try {
+            const resultado = await window.whatsappAPI.enviarMensagem(activeChatNumber, texto);
+            if (resultado && resultado.sucesso) {
+                console.log('Mensagem enviada:', resultado.dados);
+            } else {
+                addMessageToHistory(activeChatNumber, { texto: `[ERRO] Falha no envio: ${resultado && resultado.erro ? resultado.erro : 'erro'}` }, 'Sistema', false);
+            }
+        } catch (err) {
+            addMessageToHistory(activeChatNumber, { texto: `[ERRO] Falha interna: ${err.message}` }, 'Sistema', false);
+        }
+    });
+
+    // IPC listeners
+    window.whatsappAPI && window.whatsappAPI.onNovaMensagemRecebida && window.whatsappAPI.onNovaMensagemRecebida((novaMensagem) => {
+        try {
+            const num = novaMensagem.number || (novaMensagem.from ? novaMensagem.from.split('@')[0] : 'unknown');
+            addMessageToHistory(num, novaMensagem, novaMensagem.name || 'Cliente', true);
+        } catch (err) {
+            console.error('Erro ao processar nova mensagem:', err);
+        }
+    });
+
+    window.whatsappAPI && window.whatsappAPI.onQRCodeReceived && window.whatsappAPI.onQRCodeReceived((qrDataURL) => {
+        try {
+            if (qrcodeImage) {
+                qrcodeImage.src = qrDataURL;
+                qrcodeImage.classList.remove('hidden');
+            }
+            if (qrcodeMessage) qrcodeMessage.textContent = 'Escaneie o código com seu celular. Não feche esta tela!';
+            if (btnGenerateQR) {
+                btnGenerateQR.textContent = 'Aguardando Escaneamento...';
+                btnGenerateQR.disabled = true;
+                btnGenerateQR.classList.add('hidden');
+            }
+            if (btnConnectQR) {
+                btnConnectQR.classList.remove('hidden');
+                btnConnectQR.textContent = 'Aguardando Escaneamento...';
+            }
+        } catch (err) {
+            console.error('Erro ao exibir QR:', err);
+        }
+    });
+
+    window.whatsappAPI && window.whatsappAPI.onWhatsappReady && window.whatsappAPI.onWhatsappReady(handleWhatsappReady);
+
+    // Initial UI state
+    updateConnectionStatus(isConnected);
+    // Removida a tentativa antecipada de carregar chats aqui.
+    // O loadAndDisplayChats() será chamado apenas por handleWhatsappReady após conexão bem-sucedida.
+});
+
+// -------------------- Utilities & Core Functions (single implementations) --------------------
 
 function updateConnectionStatus(connected) {
-    isConnected = connected;
-    const statusEl = document.getElementById('connection-status');
-
-    if (connected) {
-        statusText.textContent = '✅ Conectado';
-        statusText.classList.remove('text-red-600');
-        statusText.classList.add('text-green-600');
-        statusEl.classList.add('bg-green-100');
-        statusEl.classList.remove('bg-red-100');
-        // Carrega a lista inicial de conversas
-        renderConversationsList();
-    } else {
-        statusText.textContent = '❌ Desconectado';
-        statusText.classList.remove('text-green-600');
-        statusText.classList.add('text-red-600');
-        statusEl.classList.remove('bg-green-100');
-        statusEl.classList.add('bg-red-100');
+    isConnected = !!connected;
+    if (statusText) {
+        statusText.textContent = isConnected ? '✅ Conectado' : '❌ Desconectado';
+        statusText.classList.toggle('text-green-600', isConnected);
+        statusText.classList.toggle('text-red-600', !isConnected);
     }
+    if (statusEl) {
+        statusEl.classList.toggle('bg-green-100', isConnected);
+        statusEl.classList.toggle('bg-red-100', !isConnected);
+    }
+    // 🚨 chamada a renderConversationsList() removida intencionalmente
 }
 
 function renderConversationsList() {
+    if (!conversationsContainer) return;
     conversationsContainer.innerHTML = '';
-    const sortedNumbers = Object.keys(conversations).sort((a, b) => {
-        // Ordena pelo número de mensagens não lidas primeiro
-        return conversations[b].unread - conversations[a].unread;
-    });
-
-    sortedNumbers.forEach(number => {
+    const sorted = Object.keys(conversations).sort((a, b) => (conversations[b].unread || 0) - (conversations[a].unread || 0));
+    sorted.forEach(number => {
         const convo = conversations[number];
-        const isActive = number === activeChatNumber;
-        
-        const item = document.createElement('div');
-        item.className = `p-4 flex justify-between items-center cursor-pointer border-b border-gray-100 transition duration-150 ${isActive ? 'bg-teal-100 border-l-4 border-teal-500' : 'hover:bg-gray-100'}`;
-        item.dataset.number = number;
-        
-        // Determina o último texto ou um texto padrão
-        const lastMessage = convo.history.length > 0 
-            ? convo.history[convo.history.length - 1].texto.substring(0, 30) + (convo.history[convo.history.length - 1].texto.length > 30 ? '...' : '')
-            : 'Nova conversa';
-
-        item.innerHTML = `
-            <div>
-                <p class="font-semibold text-gray-800">${convo.name}</p>
-                <p class="text-xs text-gray-500">${lastMessage}</p>
-            </div>
-            ${convo.unread > 0 ? `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">${convo.unread}</span>` : ''}
-        `;
-        
-        item.addEventListener('click', () => setActiveChat(number));
+        const item = createConversationListItem(convo);
         conversationsContainer.appendChild(item);
     });
 }
 
-function setActiveChat(number) {
-    // Ignora se for o chat já ativo
-    if (activeChatNumber === number) {
-        // Garante que o contador seja zerado se já estiver ativo
-        if (conversations[number].unread > 0) {
-            conversations[number].unread = 0;
-            renderConversationsList();
-        }
-        return;
-    }
+function createConversationListItem(convo) {
+    const number = convo.number;
+    const isActive = number === activeChatNumber;
+    const last = convo.lastMessage || (convo.history && convo.history.length ? convo.history[convo.history.length - 1].texto : 'Nova conversa');
+    const avatarUrl = convo.profilePicUrl || 'https://via.placeholder.com/40/CCCCCC/808080?text=C';
 
+    const item = document.createElement('div');
+    item.dataset.number = number;
+    item.className = `p-3 flex items-center space-x-3 cursor-pointer border-b border-gray-100 transition duration-150 ${isActive ? 'bg-teal-100 border-l-4 border-teal-500' : 'hover:bg-gray-100'}`;
+    item.innerHTML = `
+        <img src="${avatarUrl}" alt="${convo.name || number}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+        <div class="flex-grow min-w-0">
+            <p class="font-semibold text-gray-800 truncate">${convo.name || number}</p>
+            <p class="text-xs text-gray-500 truncate">${(last || '').length > 30 ? (last || '').slice(0,30) + '...' : (last || '')}</p>
+        </div>
+        ${(convo.unread || 0) > 0 ? `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex-shrink-0">${convo.unread}</span>` : ''}
+    `;
+    item.addEventListener('click', () => setActiveChat(number));
+    return item;
+}
+
+function setActiveChat(number) {
+    if (!conversations[number]) return;
     activeChatNumber = number;
-    
-    // Remove a classe de ativo da conversa anterior (se houver)
+
+    // Visual active update
     document.querySelectorAll('#conversations-container > div').forEach(el => {
         el.classList.remove('bg-teal-100', 'border-l-4', 'border-teal-500');
     });
+    const el = document.querySelector(`[data-number="${number}"]`);
+    if (el) el.classList.add('bg-teal-100', 'border-l-4', 'border-teal-500');
 
-    // Marca a nova conversa como ativa e limpa não lidas
-    const activeEl = document.querySelector(`[data-number="${number}"]`);
-    if (activeEl) {
-        activeEl.classList.add('bg-teal-100', 'border-l-4', 'border-teal-500');
-    }
-    
-    conversations[number].unread = 0; // Zera as não lidas
-    renderConversationsList(); // Atualiza a lista para remover o contador
-    
-    // Atualiza cabeçalho e exibe o formulário
-    placeholderChat.classList.add('hidden');
-    chatHeader.classList.remove('hidden');
-    chatForm.classList.remove('hidden');
+    conversations[number].unread = 0;
+    renderConversationsList();
 
-    activeChatName.textContent = conversations[number].name;
-    activeChatNumberEl.textContent = number;
-    
+    placeholderChat && placeholderChat.classList.add('hidden');
+    chatHeader && chatHeader.classList.remove('hidden');
+    chatForm && chatForm.classList.remove('hidden');
+    activeChatName && (activeChatName.textContent = conversations[number].name || number);
+    activeChatNumberEl && (activeChatNumberEl.textContent = number);
     renderChatMessages();
 }
 
 function renderChatMessages() {
+    if (!mensagensDiv) return;
     mensagensDiv.innerHTML = '';
     if (!activeChatNumber) return;
-
-    const history = conversations[activeChatNumber].history;
-
+    const history = conversations[activeChatNumber].history || [];
     history.forEach(msg => {
         const isMe = msg.sender === 'Eu';
-        const bubbleClass = isMe 
-            ? 'bg-blue-500 text-white self-end rounded-br-none' 
-            : 'bg-white text-gray-800 self-start rounded-tl-none border border-gray-200';
-        
+        const bubbleClass = isMe ? 'bg-blue-500 text-white self-end rounded-br-none' : 'bg-white text-gray-800 self-start rounded-tl-none border border-gray-200';
         const msgEl = document.createElement('div');
         msgEl.className = `max-w-xs md:max-w-md p-3 my-2 rounded-xl shadow-sm ${bubbleClass}`;
         msgEl.textContent = msg.texto;
         mensagensDiv.appendChild(msgEl);
     });
-    
-    mensagensDiv.scrollTop = mensagensDiv.scrollHeight; // Rola para a última mensagem
+    mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
 }
 
 function addMessageToHistory(number, message, sender, isIncoming) {
     if (!conversations[number]) {
-        // Cria uma nova conversa se o número for novo (simulação ou real)
         conversations[number] = {
-            // Tenta usar o nome da mensagem recebida ou define um nome padrão
-            name: message.name || `Cliente (${number.substring(number.length - 4)})`, 
-            number: number,
+            name: message.name || `Cliente (${number.slice(-4)})`,
+            number,
             history: [],
-            unread: 0 
+            unread: 0,
+            profilePicUrl: ''
         };
     }
-    
-    conversations[number].history.push({ 
-        texto: message.texto, 
-        sender: sender, 
-        timestamp: new Date().toLocaleTimeString() 
+    conversations[number].history.push({
+        texto: message.texto,
+        sender,
+        timestamp: new Date().toLocaleTimeString()
     });
-
-    if (isIncoming && number !== activeChatNumber) {
-        conversations[number].unread++;
-    } else if (isIncoming && number === activeChatNumber) {
-         // Se estiver no chat ativo, não marca como não lida, mas atualiza a lista
-         renderChatMessages();
+    if (isIncoming) {
+        if (number !== activeChatNumber) conversations[number].unread = (conversations[number].unread || 0) + 1;
+        else renderChatMessages();
     }
+    renderConversationsList();
+    if (number === activeChatNumber) renderChatMessages();
+}
 
-    // Atualiza a lista de conversas sempre que uma mensagem chega
-    renderConversationsList(); 
-    
-    // Se a mensagem for de um cliente e o chat estiver ativo, renderiza as mensagens
-    if (number === activeChatNumber) {
-         renderChatMessages(); 
+async function loadAndDisplayChats() {
+    try {
+        console.log('Carregando conversas ativas do WhatsApp...');
+        const response = await window.whatsappAPI.fetchChats();
+
+        if (response && response.sucesso && Array.isArray(response.chats)) {
+            conversations = conversations || {};
+            response.chats.forEach(chat => {
+                conversations[chat.number] = {
+                    name: chat.name,
+                    number: chat.number,
+                    history: conversations[chat.number] ? conversations[chat.number].history : [],
+                    unread: conversations[chat.number] ? conversations[chat.number].unread : 0,
+                    profilePicUrl: chat.profilePicUrl || ''
+                };
+            });
+            renderConversationsList();
+        } else {
+            console.error('Falha ao carregar chats:', response && response.erro);
+        }
+    } catch (e) {
+        console.error('Erro IPC ao carregar chats:', e);
     }
 }
 
-
-// --- LISTENERS ---
-
-// 1. Lógica de Envio de Mensagem (Formulário)
-chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (!isConnected || !activeChatNumber) return;
-
-    const mensagem = mensagemInput.value.trim();
-    if (!mensagem) return;
-
-    // Adiciona a mensagem ao histórico imediatamente
-    addMessageToHistory(activeChatNumber, { texto: mensagem }, 'Eu', false);
-    mensagemInput.value = ''; // Limpa o input
-
-    // Chama a API segura exposta pelo Preload
-    try {
-        const resultado = await window.whatsappAPI.enviarMensagem(activeChatNumber, mensagem);
-
-        if (resultado.sucesso) {
-            console.log('Mensagem enviada com sucesso para a API:', resultado.dados);
-        } else {
-            // Em caso de erro na API, adiciona uma notificação de erro ao chat
-            addMessageToHistory(activeChatNumber, { texto: `[ERRO] Falha no envio: ${resultado.erro.slice(0, 50)}...` }, 'Sistema', false);
-        }
-    } catch (error) {
-        addMessageToHistory(activeChatNumber, { texto: `[ERRO] Falha interna: ${error.message}` }, 'Sistema', false);
-    }
-});
-
-// 2. Lógica de Configuração (Modal)
-btnSettings.addEventListener('click', () => {
-    settingsModal.classList.remove('hidden');
-});
-
-btnCancelSettings.addEventListener('click', () => {
-    settingsModal.classList.add('hidden');
-});
-
-// Submissão do Formulário Meta API
-connectionForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const token = inputToken.value.trim();
-    const phoneId = inputPhoneId.value.trim();
-
-    if (!token || !phoneId) return;
-
-    document.getElementById('btn-connect').textContent = 'Conectando...';
-    
-    // Chama a API segura para configurar as credenciais no Main
-    try {
-        const resultado = await window.whatsappAPI.configurarCredenciais(token, phoneId);
-
-        if (resultado.sucesso) {
-            updateConnectionStatus(true);
-            settingsModal.classList.add('hidden');
-            console.log(`API configurada e conectada! Status: ${resultado.status}`);
-        } else {
-            // Substituído alert() por log de erro
-            console.error(`Erro de Conexão: ${resultado.erro}`);
-            updateConnectionStatus(false);
-        }
-    } catch (error) {
-         console.error(`Erro interno do Electron: ${error.message}`);
-         updateConnectionStatus(false);
-    } finally {
-        document.getElementById('btn-connect').textContent = 'Conectar API';
-    }
-});
-
-// Lógica do QR Code
-btnGenerateQR.addEventListener('click', () => {
-    // Simulação: O Main solicitaria a geração do QR Code e retornaria a URL da imagem.
-    // Aqui, apenas trocamos os elementos da UI.
-    btnGenerateQR.classList.add('hidden');
-    qrcodeImage.classList.remove('hidden');
-    qrcodeMessage.textContent = 'Escaneie o código com seu celular. Não feche esta tela!';
-    btnConnectQR.classList.remove('hidden');
-    
-    // Simulação de chamada IPC para o Main (que iniciaria o processo de QR code)
-    // window.whatsappAPI.solicitarQRCode(); 
-});
-
-btnConnectQR.addEventListener('click', () => {
-    // Simulação: O Main confirmaria a conexão após o escaneamento.
+function handleWhatsappReady() {
     updateConnectionStatus(true);
-    settingsModal.classList.add('hidden');
-    console.log('Conexão estabelecida via QR Code (Simulado).');
-});
-
-
-// 3. Lógica de Recepção de Mensagens (Vindo do Main via Webhook Simulado)
-window.whatsappAPI.onNovaMensagemRecebida((novaMensagem) => {
-    // novaMensagem: { texto: "...", name: "...", number: "..." }
-    console.log("Recebendo nova mensagem do Main:", novaMensagem);
-    
-    // Adiciona a mensagem ao histórico e atualiza a UI
-    addMessageToHistory(novaMensagem.number, novaMensagem, novaMensagem.name, true);
-});
-
-// Inicialização
-updateConnectionStatus(isConnected);
-
-
-});
+    settingsModal && settingsModal.classList.add('hidden');
+    btnGenerateQR && btnGenerateQR.classList.add('hidden');
+    qrcodeImage && qrcodeImage.classList.add('hidden');
+    qrcodeMessage && (qrcodeMessage.textContent = '✅ Conexão estabelecida com sucesso! (Sessão salva)');
+    btnConnectQR && (btnConnectQR.textContent = 'CONECTADO VIA QR', btnConnectQR.classList.remove('hidden'));
+    loadAndDisplayChats();
+}

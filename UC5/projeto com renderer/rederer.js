@@ -105,3 +105,26 @@ let currentOperation = null
         function mudarTema() {
             window.api.tema();
 }
+function criarJanela() {
+    window.api.criarJanela()
+}
+async function Somar() {
+    let n1 = Number(document.getElementById("n1").textContent)
+    let n2 = Number(document.getElementById("n2").textContent)
+    console.log(n1+n2)
+   // document.getElementById("visor").value = await window.api.soma(n1,n2)
+    window.api.somass(n1,n2).then((result)=>{ document.getElementById("display").value = result
+    })
+
+}
+function Historico() {
+    let op = document.getElementById("operacao").value
+    window.api.historico(op)
+}
+function enviarMsg(){
+  window.api.enviarMsg('Olá do Renderer!');
+}
+window.api.receberMsg((msg2) => {
+    alert(msg2); // ou qualquer ação desejada
+})
+

@@ -11,37 +11,6 @@ function generateRandomNumber() {
     attempts = 0
     return true
 }
-// let botao = document.querySelectorALL('button')
-// botao.addEventListener('click', () => {
-//     if(botao.className === 'num'){
-//         visor.value += botao.textContent.trim()
-//     }else if(botao.className === 'op'){
-//         visor.value += botao.textContent
-//         op = botao.textContent.trim()
-//     }console.log(op)
-// } else if(botao.id === 'igual'){
-//     document.getElementById('dica').style.visibility = 'visible'
-//     let conteudo = visor.value.split(op)
-//     switch(op){
-//         case '+':
-//             visor.value = parseFloat(conteudo[0]) + parseFloat(conteudo[1])
-//             break
-//         case '-':
-//             visor.value = parseFloat(conteudo[0]) - parseFloat(conteudo[1])
-//             break
-//         case '*':
-//             visor.value = parseFloat(conteudo[0]) * parseFloat(conteudo[1])
-//             break
-//         case '/':
-//             if(conteudo[1] == 0){
-//                 visor.value = 'Erro'
-//             }else{
-//                 visor.value = parseFloat(conteudo[0]) / parseFloat(conteudo[1])
-//             }
-//             break
-//     }
-//     updateDisplayColor(visor.value)
-// })
 
 
 // Verifica o palpite do usuário

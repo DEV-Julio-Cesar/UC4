@@ -1,22 +1,23 @@
 // main.js
 import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron';
 import path from 'node:path';
+import { fileURLToPath } from 'url'; // ⬅️ PASSO 1: Importar o conversor de URL
 
-// Define o diretório base para carregar o preload.js
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+// Define o diretório base para carregar o preload.js de forma segura em todos os sistemas
+const __filename = fileURLToPath(import.meta.url); // ⬅️ PASSO 2: Obter o nome do arquivo (URI)
+const __dirname = path.dirname(__filename);       // ⬅️ PASSO 3: Converter para o caminho do diretório (seguro)
 
 function criarJanela() {
-    nativeTheme.themeSource = 'light'; // Define um tema padrão
+    nativeTheme.themeSource = 'light'; 
 
     const janela = new BrowserWindow({
         width: 500,
         height: 700,
         resizable: false,
-        // Configurações do jogo: Título e Ícone
         title: "Jogo da Adivinhação (Adivinhe o Número)",
-        icon: path.join(__dirname, 'icon.png'), // Certifique-se de ter um arquivo 'icon.png'
+        icon: path.join(__dirname, 'icon.png'),
         webPreferences: {
-            // Caminho para o preload.js
+            // Usa o __dirname corrigido para encontrar o preload.js
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false,
@@ -25,8 +26,8 @@ function criarJanela() {
     });
 
     janela.loadFile('index.html');
-    // janela.webContents.openDevTools(); // Descomente para depurar
-    janela.removeMenu(); // Remove o menu para dar um visual mais limpo de jogo
+    // janela.webContents.openDevTools(); // Mantenha descomentado para verificar!
+    janela.removeMenu();
 }
  
 app.whenReady().then(() => {

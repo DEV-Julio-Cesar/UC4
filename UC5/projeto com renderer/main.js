@@ -44,3 +44,16 @@ ipcMain.on('tema', () => {
         nativeTheme.themeSource = 'light'
     }
 })
+ipcMain.on('criar-janela', () => {
+    criarJanela()
+})
+ipcMain.handle('calc-soma', (event,n1,n2) => {
+    return n1 + n2
+
+
+})
+ipcMain.on('enviar-msg', (event, mensagem) => {
+    console.log('Mensagem do Renderer:', mensagem)
+    event.reply('devolver-msg', 'Mensagem recebida com sucesso!')
+
+})

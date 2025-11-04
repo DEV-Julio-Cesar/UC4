@@ -9,6 +9,12 @@
     <div class="calculator-container">
         <h1>Calculadora Profissional</h1>
         <input type="text" id="display" disabled value="0">
+        <hr>
+        Mensagem Enviada: <input type="text" id="msg">
+        <button id="enviar-msg" onclick="enviarMsg()">Enviar Mensagem</button><br><br>
+        <p id ="devolver-msg"></p>
+        
+         
         
         <div class="buttons-grid">
             <button class="btn btn-clear" onclick="clearDisplay()">C</button>
@@ -26,13 +32,17 @@
             <button onclick="appendNumber('6')">6</button>
             <button class="btn btn-operator" onclick="setOperation('-')">-</button>
 
-            <button onclick="appendNumber('1')">1</button>
-            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('1')"id="n1">1</button>
+            <button onclick="appendNumber('2')"id="n2">2</button>
             <button onclick="appendNumber('3')">3</button>
             <button class="btn btn-operator" onclick="setOperation('+')">+</button>
             
             <button class="btn btn-zero" onclick="appendNumber('0')">0</button>
             <button id="tema" onclick="mudarTema()">Mudar Tema</button>
+            <button id="janela" onclick="criarJanela()">Criar Jova Janela</button>
+            <button id="soma" onclick="Somar()">Fazer=Soma</button>
+            <button id=" historico" onclick="Historico()">Historico</button>
+
         </div>
     </div>
     

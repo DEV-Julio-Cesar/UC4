@@ -1,4 +1,4 @@
-// renderer.js
+// renderer.js CORRIGIDO
 const guessInput = document.getElementById('guessInput');
 const messageElement = document.getElementById('message');
 const attemptsElement = document.getElementById('attempts');
@@ -8,8 +8,20 @@ const hintButton = document.getElementById('hintBtn');
 let lastHint = '';
 let isGameOver = false;
 
-// Inicializa o jogo ao carregar o script
-window.gameApi.generateRandomNumber();
+// 1. Envolve a inicialização do jogo para garantir que a API esteja pronta
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializa o jogo SOMENTE APÓS o DOM ser carregado
+    if (window.gameApi) {
+        window.gameApi.resetGame(); // Usa resetGame para garantir que a UI seja resetada corretamente
+        updateUI({
+            attempts: 0, 
+            message: 'Tente adivinhar o novo número!', 
+            result: 'reset'
+        });
+    } else {
+        console.error("Erro: window.gameApi não foi exposta pelo preload.js.");
+    }
+});
 
 
 function updateUI(data) {
@@ -40,7 +52,9 @@ function updateUI(data) {
     } else if (data.result === 'lose') {
         // Se errou
         messageElement.classList.add('lose');
-        lastHint = `O número é ${data.hint}.`;
+        
+        // Verifica se a dica existe antes de atribuir, garantindo a compatibilidade
+        lastHint = data.hint ? `O número é ${data.hint}.` : 'O palpite estava incorreto.';
         
         // Torna o botão Dica visível após o primeiro erro
         if (data.attempts > 0) {
@@ -54,6 +68,7 @@ function updateUI(data) {
 
 function checkGuess() {
     if (isGameOver) return;
+    if (!window.gameApi) return console.error("API do jogo não está disponível.");
 
     const guess = guessInput.value;
     // Chama a função exposta pelo preload
@@ -71,10 +86,15 @@ function showHint() {
     if (lastHint) {
         hintMessageElement.textContent = `DICA: ${lastHint}`;
         hintMessageElement.style.display = 'block';
+    } else {
+        hintMessageElement.textContent = `Aguarde um primeiro palpite errado para obter uma dica!`;
+        hintMessageElement.style.display = 'block';
     }
 }
 
 function startNewGame() {
+    if (!window.gameApi) return console.error("API do jogo não está disponível.");
+    
     // Reseta o jogo através do preload
     const data = window.gameApi.resetGame()
     isGameOver = false;
@@ -94,12 +114,16 @@ function startNewGame() {
     hintMessageElement.style.display = 'none';
 }
 
-// Expõe funções globais para o HTML
+// Expõe funções globais para o HTML (Isso deve funcionar se o script for carregado)
 window.checkGuess = checkGuess;
 window.clearInput = clearInput;
+<<<<<<< HEAD:UC5/atividade de dica/rederer.js
 window.showHint = showHint;
 
 function mudarTema() {
     alert("Tema alterado!");
     window.gameApi.tema();
 }
+=======
+window.showHint = showHint;
+>>>>>>> ef1bc39a5b155cb7932d0e24ce9e34d1b7924eb6:UC5/atividade de dica/renderer.js

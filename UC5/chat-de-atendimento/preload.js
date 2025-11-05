@@ -47,3 +47,11 @@ contextBridge.exposeInMainWorld('whatsappAPI', {
         ipcRenderer.on('whatsapp-ready', () => callback());
     }
 });
+// NO ARQUIVO: preload.js
+
+// ... (dentro de contextBridge.exposeInMainWorld('whatsappAPI', { ... ) ...
+
+// 🚨 NOVO: Função para buscar o histórico de um chat
+fetchChatHistory: (number) => {
+    return ipcRenderer.invoke('fetch-chat-history', number);
+},

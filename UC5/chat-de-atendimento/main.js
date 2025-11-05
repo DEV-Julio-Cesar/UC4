@@ -15,6 +15,7 @@ let loginWindow = null;
 let whatsappClient = null;
 const WS_SERVER_URL = 'ws://localhost:8080';
 let ws = null;
+let historyWindow = null; // 🚨 NOVO
 
 // =========================================================================
 // FUNÇÕES (definidas antes de app.whenReady)
@@ -112,7 +113,7 @@ function createMainWindow() {
 }
 
 // =========================================================================
-// INICIALIZAÇÃO E HANDLERS IPC
+// INICIALIZAÇÃO E HANDLERS IPC (TODOS DENTRO DO app.whenReady)
 // =========================================================================
 
 app.whenReady().then(() => {
@@ -131,9 +132,7 @@ app.whenReady().then(() => {
     // AUTENTICAÇÃO (LOGIN)
     // -----------------------
     ipcMain.handle('login-attempt', async (event, { username, password }) => {
-        // Se tiver um módulo auth, use-o; caso contrário, exemplo simples:
         try {
-            // tente validar com um módulo externo se houver
             let ok = false;
             try {
                 const auth = require('./auth');
@@ -141,8 +140,8 @@ app.whenReady().then(() => {
                     ok = await auth.validateCredentials(username, password);
                 }
             } catch (e) {
-                // fallback simples: aceitamos qualquer par para demo (ajuste em produção)
-                ok = username === 'admin' && password === 'admin';
+                // fallback ajustado conforme solicitado
+                ok = username === 'admin' && password === '123456';
             }
 
             if (ok) {
@@ -165,18 +164,16 @@ app.whenReady().then(() => {
             whatsappClient = null;
         }
 
-        // limpeza da sessão (tenta caminhos comuns)
+        // limpeza de sessão (se necessário)
         try {
             const baseSessionPath = path.join(app.getPath('userData'), 'Local Storage');
             if (await fs.pathExists(baseSessionPath)) {
-                // não remove tudo, remove pasta específica se existir
-                // alternativa: aceitamos que LocalAuth gerencie sessões automaticamente
+                // LocalAuth gerencia sessão; mantemos este bloco caso queira limpar manualmente
             }
         } catch (e) {
             console.warn('Erro ao verificar/remover session path:', e.message);
         }
 
-        // inicializa novo cliente whatsapp-web.js
         whatsappClient = new Client({
             authStrategy: new LocalAuth({ clientId: 'electron-app-session' }),
             puppeteer: {
@@ -283,6 +280,35 @@ app.whenReady().then(() => {
         }
     });
 
+    // 7) NOVO: Manipulador para buscar o histórico de mensagens de um chat específico
+    ipcMain.handle('fetch-chat-history', async (event, number) => {
+        if (!whatsappClient || !whatsappClient.info) {
+            return { sucesso: false, erro: 'Cliente WhatsApp desconectado.' };
+        }
+
+        try {
+            const chatId = `${number}@c.us`;
+            const chat = await whatsappClient.getChatById(chatId);
+
+            if (!chat) {
+                return { sucesso: false, erro: `Chat com ${number} não encontrado.` };
+            }
+
+            const messages = await chat.fetchMessages({ limit: 20 });
+
+            const history = messages.map(msg => ({
+                texto: msg.body,
+                timestamp: new Date(msg.timestamp * 1000).toLocaleTimeString(),
+                sender: msg.fromMe ? 'Eu' : (msg.author ? msg.author.split('@')[0] : 'Cliente')
+            })).reverse();
+
+            return { sucesso: true, history };
+        } catch (e) {
+            console.error('[History] Erro ao buscar histórico:', e);
+            return { sucesso: false, erro: e.message || String(e) };
+        }
+    });
+
     // -----------------------
     // CONFIGURAR CREDENCIAIS
     // -----------------------
@@ -325,3 +351,28 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
 });
+
+function createHistoryWindow() {
+    if (historyWindow) {
+        historyWindow.focus();
+        return;
+    }
+    historyWindow = new BrowserWindow({
+        width: 800,
+        height: 700,
+        minWidth: 600,
+        minHeight: 500,
+        webPreferences: {
+            preload: path.join(__dirname, 'preload-history.js'), // 🚨 NOVO PRELOAD
+            nodeIntegration: false,
+            contextIsolation: true
+        }
+    });
+
+    historyWindow.loadFile('history.html');
+    // Limpa a referência ao fechar
+    historyWindow.on('closed', () => {
+        historyWindow = null;
+    });
+    // historyWindow.webContents.openDevTools();
+}

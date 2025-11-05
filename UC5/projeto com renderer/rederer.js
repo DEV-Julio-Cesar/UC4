@@ -122,7 +122,7 @@ function Historico() {
     window.api.historico(op)
 }
 function enviarMsg(){
-  window.api.enviarMsg('Olá do Renderer!');
+  window.api.enviarMsg('Olá do Renderer!', msg);
 }
 window.api.receberMsg((msg2) => {
     alert(msg2); // ou qualquer ação desejada

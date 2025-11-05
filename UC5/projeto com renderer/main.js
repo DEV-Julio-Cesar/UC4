@@ -52,8 +52,8 @@ ipcMain.handle('calc-soma', (event,n1,n2) => {
 
 
 })
-ipcMain.on('enviar-msg', (event, mensagem) => {
-    console.log('Mensagem do Renderer:', mensagem)
+ipcMain.on('enviar-msg', (event, msg) => {
+    console.log('Mensagem do Renderer:', msg)
     event.reply('devolver-msg', 'Mensagem recebida com sucesso!')
 
 })

@@ -116,60 +116,99 @@ app.whenReady().then(() => {
     });
 
     // 1) Configurar credenciais Cloud API
-    ipcMain.handle('config-whatsapp-credentials', (event, { token, id }) => {
-        WHATSAPP_TOKEN = token || '';
-        PHONE_NUMBER_ID = id || '';
+   // NO ARQUIVO: main.js
+// ... (dentro de app.whenReady().then(() => { ... }) ) ...
+// NO ARQUIVO: main.js
+// ... (dentro de app.whenReady().then(() => { ... }) ) ...
 
-        if (WHATSAPP_TOKEN.startsWith('TOKEN_DE_TESTE_')) {
-            console.log('Credenciais de teste recebidas. O envio de mensagens será simulado.');
-            return { sucesso: true, status: 'Conectado (Teste/Simulação)' };
+// 2) Iniciar fluxo de QR Code (whatsapp-web.js)
+ipcMain.handle('iniciar-qr-code-flow', async () => {
+
+    // 🚨 PASSO 1: Destruir o cliente antigo se ele existir
+    if (whatsappClient) {
+        console.log('[QR] Cliente existente detectado. Tentando limpar e destruir...');
+        try {
+            await whatsappClient.destroy();
+            console.log('[QR] Cliente destruído com sucesso.');
+        } catch (e) {
+            console.warn('[QR] Aviso: Erro ao destruir cliente, pode não estar ativo, prosseguindo com limpeza. ', e.message);
         }
+        whatsappClient = null;
+    }
 
-        console.log('Credenciais da API do WhatsApp armazenadas com sucesso.');
-        return { sucesso: true, status: 'Conectado (Meta Cloud API)' };
+    // 🚨 PASSO 2: Limpeza Forçada dos Arquivos de Sessão (NOVO BLOCO)
+    const sessionPath = path.join(app.getPath('userData'), 'Default', 'session', 'session-electron-app-session');
+
+    try {
+        if (fs.existsSync(sessionPath)) {
+            await fs.remove(sessionPath);
+            console.log('[QR] Pasta de sessão antiga removida com sucesso para forçar novo QR Code.');
+        }
+    } catch (e) {
+        console.error('[QR] Erro ao remover pasta de sessão:', e.message);
+    }
+    // FIM DA LIMPEZA FORÇADA
+
+    // 🚨 PASSO 3: Criar um novo cliente whatsapp-web.js (com listeners)
+
+    console.log('[QR] Inicializando Novo Cliente do WhatsApp Web...');
+
+    // 🚨 ALERTA: Definindo caminho fixo do Edge para QRCode
+    const browserExecutablePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+
+    whatsappClient = new Client({
+        authStrategy: new LocalAuth({ clientId: 'electron-app-session' }),
+        puppeteer: {
+            executablePath: browserExecutablePath,
+            headless: false,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        }
     });
 
-    // 2) Iniciar fluxo de QR Code (whatsapp-web.js)
-    ipcMain.handle('iniciar-qr-code-flow', async () => {
-        if (whatsappClient) {
-            console.log('[QR] Cliente já existe. Reutilizando.');
-            return { sucesso: true, status: 'Cliente já inicializado' };
-        }
-
-        console.log('[QR] Inicializando Cliente do WhatsApp Web...');
-        whatsappClient = new Client({
-            authStrategy: new LocalAuth({ clientId: 'electron-app-session' })
-        });
-
-        whatsappClient.on('qr', async (qr) => {
-            console.log('[QR] Código QR recebido, gerando imagem DataURL...');
-            try {
-                const qrDataURL = await qrcode.toDataURL(qr);
-                if (mainWindow) mainWindow.webContents.send('qr-code-data', qrDataURL);
-            } catch (error) {
-                console.error('[QR] Erro ao gerar DataURL do QR Code:', error.message);
-            }
-        });
-
-        whatsappClient.on('ready', () => {
-            console.log('[QR] Cliente WhatsApp conectado e pronto!');
-            if (mainWindow) mainWindow.webContents.send('whatsapp-ready');
-        });
-
-        whatsappClient.on('message', msg => {
+    // 🚨 LISTENER 1: QR Code Recebido (CRUCIAL PARA EXIBIR)
+    whatsappClient.on('qr', async (qr) => {
+        console.log('[QR] Código QR recebido, gerando imagem DataURL...');
+        try {
+            const qrDataURL = await qrcode.toDataURL(qr);
             if (mainWindow) {
-                const novaMensagem = {
-                    texto: msg.body,
-                    name: msg.author || 'Cliente',
-                    number: msg.from ? msg.from.split('@')[0] : ''
-                };
-                mainWindow.webContents.send('nova-mensagem-recebida', novaMensagem);
+                mainWindow.webContents.send('qr-code-data', qrDataURL);
             }
-        });
-
-        whatsappClient.initialize().catch(e => console.error('[QR] Erro de inicialização do cliente:', e));
-        return { sucesso: true, status: 'Fluxo de QR Code iniciado' };
+        } catch (error) {
+            console.error('[QR] Erro ao gerar DataURL do QR Code:', error.message);
+        }
     });
+
+    // 🚨 LISTENER 2: Cliente Pronto (CONEXÃO ESTABELECIDA)
+    whatsappClient.on('ready', () => {
+        console.log('[QR] Cliente WhatsApp conectado e pronto!');
+        if (mainWindow) {
+            mainWindow.webContents.send('whatsapp-ready');
+        }
+    });
+
+    // 🚨 LISTENER 3: Mensagem Recebida (PARA RECEBER MENSAGENS NO CHAT)
+    whatsappClient.on('message', async msg => {
+        console.log('[QR] Nova mensagem do WhatsApp recebida.');
+        // O Main Process também precisa buscar as informações de contato para retransmitir o nome
+        const contact = await msg.getContact(); 
+        const number = msg.from.split('@')[0];
+
+        if (mainWindow) {
+            const novaMensagem = {
+                texto: msg.body,
+                name: contact.name || contact.pushname || number, // Nome do contato
+                number: number
+            };
+            mainWindow.webContents.send('nova-mensagem-recebida', novaMensagem);
+        }
+    }); // <--- CHAVE DE FECHAMENTO DO .on('message', ...)
+
+    // 🚨 PASSO 3: Inicializar o cliente
+    whatsappClient.initialize().catch(e => console.error('[QR] Erro de inicialização do cliente:', e));
+    return { sucesso: true, status: 'Fluxo de QR Code iniciado' };
+}); // <--- CHAVE DE FECHAMENTO DO IPC.HANDLE ('iniciar-qr-code-flow')
+
+// ... (o restante do código, como ipcMain.handle('send-whatsapp-message', ...), segue normalmente) ...
 
     // 3) Enviar mensagem (unificado: simulação, whatsapp-web.js ou Cloud API)
     ipcMain.handle('send-whatsapp-message', async (event, { numero, mensagem }) => {
@@ -181,7 +220,7 @@ app.whenReady().then(() => {
             }
 
             // Se cliente whatsapp-web.js está pronto, use-o
-            if (whatsappClient && whatsappClient.pupBrowser) {
+            if (whatsappClient && whatsappClient.info) {
                 await whatsappClient.sendMessage(`${numero}@c.us`, mensagem);
                 return { sucesso: true, dados: { status: 'enviado-qr' } };
             }
@@ -196,7 +235,7 @@ app.whenReady().then(() => {
     });
 
     // Outros handlers IPC podem ser adicionados aqui...
-});
+
 
 // Encerra o aplicativo quando todas as janelas forem fechadas (exceto no macOS)
 app.on('window-all-closed', () => {
@@ -207,7 +246,7 @@ app.on('window-all-closed', () => {
 
 // 4. Manipulador para buscar a lista de conversas ativas
 ipcMain.handle('fetch-whatsapp-chats', async () => {
-    if (!whatsappClient || !whatsappClient.pupBrowser) {
+    if (!whatsappClient || !whatsappClient.info) {
         return { sucesso: false, erro: 'Cliente WhatsApp desconectado.' };
     }
 
@@ -254,3 +293,33 @@ ipcMain.handle('fetch-whatsapp-chats', async () => {
         return { sucesso: false, erro: e && e.message ? e.message : String(e) };
     }
 });
+});
+
+const fs = require('fs-extra'); // 🚨 NOVO
+// ...
+// 5. Manipulador para limpar sessões antigas (whatsapp-web.js)
+ipcMain.handle('clear-whatsapp-sessions', async () => {
+    const sessionPath = path.join(app.getPath('userData'), 'Local Storage', 'whatsapp-web.js', 'electron-app-session'); 
+    try {
+        if (fs.existsSync(sessionPath)) {
+            await fs.remove(sessionPath);
+            console.log('[clear-whatsapp-sessions] Sessões antigas removidas com sucesso.');
+            return { sucesso: true, status: 'Sessões antigas removidas.' };
+        } else {
+            console.log('[clear-whatsapp-sessions] Nenhuma sessão antiga encontrada para remover.');
+            return { sucesso: true, status: 'Nenhuma sessão antiga encontrada.' };
+        }
+    } catch (e) {
+        console.error('[clear-whatsapp-sessions] Erro ao remover sessões antigas:', e);
+        return { sucesso: false, erro: e.message };
+    }
+});
+ipcMain.handle('configurar-whatsapp-credentials', (event, { token, phoneNumberId, apiVersion }) => {
+    WHATSAPP_TOKEN = token;
+    PHONE_NUMBER_ID = phoneNumberId;
+    API_VERSION = apiVersion || 'v19.0';
+
+    console.log('[Configuração] Credenciais da API do WhatsApp atualizadas pelo frontend.');
+    return { sucesso: true, status: 'Credenciais atualizadas' };
+}
+);

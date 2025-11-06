@@ -128,6 +128,38 @@ app.whenReady().then(() => {
         }
     });
 
+    ipcMain.on('open-history-search-window', () => {
+    createHistoryWindow();
+});
+// 8) NOVO: Manipulador IPC para Pesquisa de Histórico por Data (Simulação)
+ipcMain.handle('search-chat-history', async (event, filters) => {
+    // 🚨 AQUI IRIA A LÓGICA DE CONEXÃO E CONSULTA AO BANCO DE DADOS LOCAL (DB)
+    console.log('[History Search] Recebido filtro:', filters);
+
+    // --- SIMULAÇÃO DE BANCO DE DADOS ---
+    if (filters.number.startsWith('55')) { 
+        // Se for um número brasileiro, simula resultados.
+        const mockHistory = [
+            { texto: 'Olá, qual o status do pedido?', sender: 'Cliente', timestamp: new Date('2025-11-01T10:00:00').getTime() },
+            { texto: 'Pedido em processamento. Entrega amanhã.', sender: 'Eu', timestamp: new Date('2025-11-01T10:05:00').getTime() },
+            { texto: 'Obrigado!', sender: 'Cliente', timestamp: new Date('2025-11-02T14:30:00').getTime() },
+            { texto: 'Boa tarde. Qual o novo prazo?', sender: 'Cliente', timestamp: new Date('2025-11-05T08:00:00').getTime() },
+        ];
+        
+        // Filtra os mockups pela data
+        const startTime = new Date(filters.dateStart).getTime();
+        const endTime = new Date(filters.dateEnd).getTime();
+        
+        const filtered = mockHistory.filter(msg => {
+            return msg.timestamp >= startTime && msg.timestamp <= endTime;
+        });
+
+        return { sucesso: true, history: filtered };
+    }
+    
+    return { sucesso: false, erro: 'A consulta de histórico completo requer um banco de dados local que ainda não foi implementado.' };
+});
+
     // -----------------------
     // AUTENTICAÇÃO (LOGIN)
     // -----------------------

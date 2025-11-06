@@ -3,6 +3,10 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // 🚨 CORREÇÃO: Unifique todas as funções em UMA ÚNICA EXPOSIÇÃO.
 contextBridge.exposeInMainWorld('whatsappAPI', {
+    // Funcao para abrir a nova janela de Historico
+openHistorySearch: () => {
+    ipcRenderer.send('open-history-search-window');
+},
     
     // --- FUNÇÕES DA CLOUD API (IPC Main.handle) ---
     configurarCredenciais: (token, id) => {

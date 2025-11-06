@@ -7,6 +7,10 @@ let conversations = {}; // histórico por número
 let statusText, statusEl, btnSettings, settingsModal, btnCancelSettings, connectionForm, inputToken, inputPhoneId, btnConnect;
 let conversationsContainer, mensagensDiv, chatForm, chatHeader, activeChatName, activeChatNumberEl, mensagemInput, placeholderChat;
 let btnGenerateQR, btnConnectQR, qrcodeImage, qrcodeMessage;
+const btnHistory = document.getElementById('btn-history-search'); // Ref do novo botão
+btnHistory && btnHistory.addEventListener('click', () => {
+    window.whatsappAPI.openHistorySearch();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Refs ---

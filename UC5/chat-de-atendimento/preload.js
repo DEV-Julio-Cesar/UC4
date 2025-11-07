@@ -1,15 +1,16 @@
 // preload.js - Script de Pré-carregamento (Ponte Segura IPC)
 const { contextBridge, ipcRenderer } = require('electron');
 
-// 🚨 CORREÇÃO: Unifique todas as funções em UMA ÚNICA EXPOSIÇÃO.
+// 🚨 CORREÇÃO: Todas as funções estão unificadas em UMA ÚNICA EXPOSIÇÃO.
 contextBridge.exposeInMainWorld('whatsappAPI', {
     // Funcao para abrir a nova janela de Historico
-openHistorySearch: () => {
-    ipcRenderer.send('open-history-search-window');
-},
+    openHistorySearch: () => {
+        ipcRenderer.send('open-history-search-window');
+    },
     
     // --- FUNÇÕES DA CLOUD API (IPC Main.handle) ---
     configurarCredenciais: (token, id) => {
+        // Nota: Garanta que o nome do handler no main.js seja 'config-whatsapp-credentials'
         return ipcRenderer.invoke('config-whatsapp-credentials', { token, id });
     },
     
@@ -24,9 +25,14 @@ openHistorySearch: () => {
         return ipcRenderer.invoke('iniciar-qr-code-flow');
     },
 
-    // 🚨 NOVO/CORRIGIDO: Função para buscar a lista de conversas
+    // Função para buscar a lista de conversas
     fetchChats: () => {
         return ipcRenderer.invoke('fetch-whatsapp-chats');
+    },
+    
+    // 🚨 CORRIGIDO: Esta função estava fora do objeto
+    fetchChatHistory: (number) => {
+        return ipcRenderer.invoke('fetch-chat-history', number);
     },
 
     // --- LISTENERS (IPC Main.send) ---
@@ -51,11 +57,3 @@ openHistorySearch: () => {
         ipcRenderer.on('whatsapp-ready', () => callback());
     }
 });
-// NO ARQUIVO: preload.js
-
-// ... (dentro de contextBridge.exposeInMainWorld('whatsappAPI', { ... ) ...
-
-// 🚨 NOVO: Função para buscar o histórico de um chat
-fetchChatHistory: (number) => {
-    return ipcRenderer.invoke('fetch-chat-history', number);
-},

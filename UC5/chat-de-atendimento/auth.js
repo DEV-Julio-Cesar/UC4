@@ -1,6 +1,6 @@
 // auth.js
 const VALID_USERS = { // Usuários válidos e suas senhas (em produção, use um banco de dados seguro)
-    'admin': '123456',
+    'admin': '1234',
     'user': 'senha123',
     'koldri': '13051987'
 };

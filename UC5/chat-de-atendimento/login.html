@@ -1,71 +1,55 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Atendimento WhatsApp</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { font-family: 'Inter', sans-serif; }</style>
-</head>
-<body class="bg-gray-100 antialiased flex items-center justify-center h-screen">
+</div>
 
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm">
-        <h1 class="text-2xl font-bold mb-6 text-teal-600 text-center">Acesso ao Sistema</h1>
-        
-        <form id="login-form">
-            <div class="mb-4">
-                <label for="username" class="block text-gray-700 font-semibold mb-2">Usuário</label>
-                <input type="text" id="username" placeholder="Seu usuário" 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-            </div>
-            <div class="mb-6">
-                <label for="password" class="block text-gray-700 font-semibold mb-2">Senha</label>
-                <input type="password" id="password" placeholder="Sua senha" 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-            </div>
-            <p id="login-message" class="text-red-600 text-sm mb-4 hidden">Usuário ou senha inválidos.</p>
-            <button type="submit" id="btn-login" class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-150 font-bold">
-                Entrar
-            </button>
-        </form>
-    </div>
+        <script>
+        // 🚨 ADICIONADO: Garante que o script rode após o HTML carregar
+        document.addEventListener('DOMContentLoaded', () => {
 
-    <script src="preload-login.js"></script>
-    <script>
-        const form = document.getElementById('login-form');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const loginMessage = document.getElementById('login-message');
-        const btnLogin = document.getElementById('btn-login');
+            // 🚨 CORREÇÃO: Faltava a referência ao formulário
+            const form = document.getElementById('login-form');
+            
+            // Suas variáveis existentes
+const usernameInput = document.getElementById('username');
+ const passwordInput = document.getElementById('password');
+ const loginMessage = document.getElementById('login-message');
+ const btnLogin = document.getElementById('btn-login');
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            btnLogin.textContent = 'Verificando...';
-            btnLogin.disabled = true;
-            loginMessage.classList.add('hidden');
+ form.addEventListener('submit', async (e) => {
+e.preventDefault();
+ btnLogin.textContent = 'Verificando...';
+ btnLogin.disabled = true;
+ loginMessage.classList.add('hidden');
 
-            const username = usernameInput.value;
-            const password = passwordInput.value;
+const username = usernameInput.value;
+ const password = passwordInput.value;
 
-            try {
-                // Chama a API exposta pelo preload-login.js
-                const isAuthenticated = await window.loginAPI.authenticate(username, password);
+try {
+                    // 🚨 ADICIONADO: Verificação para garantir que o preload foi carregado
+                    if (window.loginAPI && typeof window.loginAPI.authenticate === 'function') {
+    // Chama a API exposta pelo preload-login.js
+    const isAuthenticated = await window.loginAPI.authenticate(username, password);
 
-                if (isAuthenticated) {
-                    // O Main Process cuidará da mudança de janela
-                } else {
-                    loginMessage.textContent = 'Usuário ou senha inválidos.';
-                    loginMessage.classList.remove('hidden');
-                }
-            } catch (error) {
-                loginMessage.textContent = 'Erro de comunicação. Tente novamente.';
-                loginMessage.classList.remove('hidden');
-                console.error('Erro de autenticação IPC:', error);
-            } finally {
-                btnLogin.textContent = 'Entrar';
-                btnLogin.disabled = false;
-            }
-        });
-    </script>
+  if (isAuthenticated) {
+     // O Main Process cuidará da mudança de janela
+    } else {
+     loginMessage.textContent = 'Usuário ou senha inválidos.';
+    loginMessage.classList.remove('hidden');
+     }
+                    } else {
+                        // Erro se o 'preload-login.js' falhar ao carregar
+                        loginMessage.textContent = 'Erro fatal: A API de login não foi carregada.';
+                        loginMessage.classList.remove('hidden');
+                        console.error("window.loginAPI ou window.loginAPI.authenticate não está definido.");
+                    }
+ } catch (error) {
+loginMessage.textContent = 'Erro de comunicação. Tente novamente.';
+loginMessage.classList.remove('hidden');
+console.error('Erro de autenticação IPC:', error);
+} finally {
+ btnLogin.textContent = 'Entrar';
+ btnLogin.disabled = false;
+}
+});
+        }); // 🚨 FIM DO DOMContentLoaded
+</script>
 </body>
 </html>

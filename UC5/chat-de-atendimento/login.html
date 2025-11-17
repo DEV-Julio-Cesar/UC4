@@ -27,6 +27,9 @@
             <button type="submit" id="btn-login" class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-150 font-bold">
                 Entrar
             </button>
+            <button type="button" id="btn-cadastrar-usuario" class="w-full mt-2 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-150 font-bold">
+                ➕ Cadastrar novo usuário
+            </button>
         </form>
     </div>
 
@@ -51,11 +54,19 @@
                 const username = usernameInput.value;
                 const password = passwordInput.value;
 
+                // Solução 1: Validação pelo localStorage (front-end)
+                let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+                const usuarioEncontrado = usuarios.find(u => u.usuario === username && u.senha === password);
+                if (usuarioEncontrado) {
+                    // Login bem-sucedido
+                    window.open('index.html', '_self'); // Garante que a tela principal seja aberta corretamente
+                    return;
+                }
+
+                // Solução 2: Validação pelo backend (IPC)
                 try {
-                    // Verifica se o preload foi carregado
                     if (window.loginAPI && typeof window.loginAPI.authenticate === 'function') {
                         const isAuthenticated = await window.loginAPI.authenticate(username, password);
-
                         if (!isAuthenticated) {
                             loginMessage.textContent = 'Usuário ou senha inválidos.';
                             loginMessage.classList.remove('hidden');
@@ -75,6 +86,10 @@
                     btnLogin.disabled = false;
                 }
             });
+
+            document.getElementById("btn-cadastrar-usuario").onclick = function() {
+                window.location.href = "cadastro.html";
+            };
         });
     </script>
 </body>

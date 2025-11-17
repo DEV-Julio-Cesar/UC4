@@ -80,3 +80,7 @@ contextBridge.exposeInMainWorld('internalChatAPI', {
     fetchHistory: () => ipcRenderer.invoke('internal-chat-history'),
     onMessage: (cb) => ipcRenderer.on('internal-chat-message', (e, msg) => cb(msg))
 });
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    setFullScreen: (flag) => ipcRenderer.send('set-fullscreen', flag)
+});

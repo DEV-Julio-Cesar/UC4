@@ -197,6 +197,13 @@
                         >
                             🔗 Conectar API
                         </button>
+                        <button 
+                            id="btn-cadastrar-usuario" 
+                            type="button" 
+                            class="w-full mt-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                        >
+                            ➕ Cadastrar novo usuário
+                        </button>
                     </form>
                 </div>
 
@@ -275,5 +282,10 @@
 
     <!-- Script do Renderer -->
     <script src="renderer.js"></script>
+    <script>
+        document.getElementById("btn-cadastrar-usuario").onclick = function() {
+            window.location.href = "cadastro.html";
+        };
+    </script>
 </body>
 </html>

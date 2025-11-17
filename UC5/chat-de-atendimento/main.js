@@ -618,6 +618,12 @@ ipcMain.handle('login-attempt', async (event, { username, password }) => {
     ipcMain.handle('internal-chat-history', () => {
         return { sucesso: true, history: internalChatHistory.slice(-100) };
     });
+
+    // --- IPC PARA MODO DE TELA CHEIA ---
+    ipcMain.on('set-fullscreen', (event, flag) => {
+        const win = BrowserWindow.getFocusedWindow();
+        if (win) win.setFullScreen(flag);
+    });
 }); // <-- FIM DO BLOCO app.whenReady().then()
 
 // =========================================================================

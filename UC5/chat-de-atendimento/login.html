@@ -59,7 +59,10 @@
                 const usuarioEncontrado = usuarios.find(u => u.usuario === username && u.senha === password);
                 if (usuarioEncontrado) {
                     // Login bem-sucedido
-                    window.open('index.html', '_self'); // Garante que a tela principal seja aberta corretamente
+                    if (window.electronAPI && typeof window.electronAPI.setFullScreen === 'function') {
+                        window.electronAPI.setFullScreen(true);
+                    }
+                    window.open('index.html', '_self'); // Garante tela principal
                     return;
                 }
 

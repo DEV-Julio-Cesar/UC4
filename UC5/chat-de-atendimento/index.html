@@ -1,189 +1,279 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Atendimento Profissional WhatsApp</title>
-<!-- Incluindo Tailwind CSS para design moderno -->
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
-    body { font-family: 'Inter', sans-serif; }
-    /* Garantindo que o layout preencha a tela */
-    html, body, main { height: 100%; margin: 0; padding: 0; }
-    /* Barra de rolagem customizada para conversas */
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-</style>
-
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Multi-Atendimento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 antialiased flex flex-col h-screen">
-
-<!-- Header Fixo -->
-<header class="bg-white shadow-md p-4 flex justify-between items-center z-10 flex-shrink-0">
-    <h1 class="text-xl font-bold text-teal-600 flex items-center">
-        <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12.001 2.003c5.522 0 9.998 4.477 9.998 9.997 0 5.523-4.476 10-9.998 10-2.032 0-3.935-.615-5.541-1.678l-3.211.75c-.328.077-.665-.051-.83-.347-.165-.297-.132-.676.082-.942l1.636-2.003c-1.077-1.745-1.634-3.784-1.636-5.879 0-5.52 4.476-9.997 9.998-9.997zM16.974 15.352c-.105-.183-.385-.298-.806-.505-.422-.207-2.518-1.238-2.903-1.373-.38-.135-.658-.028-.805.106-.146.134-.567.671-.697.806-.13.134-.26.15-.484.053-.224-.097-.946-.347-1.801-1.11-.663-.59-1.109-1.325-1.24-1.554-.13-.229-.014-.354.093-.461.087-.086.195-.207.29-.31.096-.104.13-.179.195-.313.065-.134.032-.254-.016-.356-.048-.102-.484-1.16-.663-1.593-.18-.432-.36-.372-.485-.378-.125-.005-.262-.064-.401-.064-.14 0-.36.053-.55.26-.19.206-.723.707-.723 1.724s.74 2.003.842 2.14c.102.134 1.458 2.222 3.528 3.033 2.071.812 2.457.812 2.91.766.452-.045 1.457-.611 1.666-1.196.208-.585.208-1.08.143-1.197z"/>
-        </svg>
-        Atendimento
-    </h1>
-    <button id="btn-settings" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-full transition duration-150">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.42-.7 1.4-.7 1.82 0l2.9 4.834a1 1 0 01-.41 1.45L12.5 12h-1l-2.135-1.4a1 1 0 01-.41-1.45l2.9-4.834zM12 15v3m-5-3.5h10a1 1 0 011 1v4a1 1 0 01-1 1H7a1 1 0 01-1-1v-4a1 1 0 011-1z"></path></svg>
-    </button>
-</header>
-
-<!-- Conteúdo Principal: Duas Colunas -->
-<main class="flex flex-grow overflow-hidden">
+<body class="h-screen overflow-hidden bg-gray-50">
     
-    <!-- Coluna de Conversas (Lista de Contatos) -->
-    <aside id="conversations-list" class="w-1/3 md:w-1/4 lg:w-1/5 bg-gray-50 border-r border-gray-200 custom-scrollbar overflow-y-auto flex flex-col transition-all duration-300 flex-shrink-0">
-        <div id="connection-status" class="p-4 bg-red-100 text-center text-sm font-semibold transition-colors duration-300">
-            <span id="status-text" class="text-red-600">❌ Desconectado</span>
-        </div>
-        <div id="conversations-container" class="flex-grow">
-            <!-- Conversas injetadas pelo JS -->
-             <div class="p-4 border-b border-gray-200">
-    <button id="btn-new-chat" class="w-full bg-teal-500 text-white font-semibold py-2 rounded-lg hover:bg-teal-600 transition duration-150 shadow-md">
-        + Nova Conversa
-    </button>
-</div>
-
-<div id="conversations-container" class="flex-1 custom-scrollbar overflow-y-auto">
-    </div>
-        </div>
-    </aside>
-
-    <!-- Coluna de Chat Ativo -->
-    <section class="flex-grow flex flex-col">
-        <div id="chat-header" class="bg-white p-4 border-b border-gray-200 shadow-sm hidden flex-shrink-0">
-            <h2 class="text-lg font-semibold text-gray-800">Chat com <span id="active-chat-name"></span></h2>
-            <p class="text-sm text-gray-500">Número: <span id="active-chat-number"></span></p>
-        </div>
-        
-        <!-- Área de Mensagens -->
-        <div id="mensagens" class="flex-grow p-4 overflow-y-auto bg-gray-50 custom-scrollbar flex flex-col">
-            <div id="placeholder-chat" class="flex flex-col items-center justify-center h-full text-gray-500 text-center">
-                <svg class="w-16 h-16 text-teal-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z"></path></svg>
-                <p class="text-lg font-semibold">Selecione uma conversa para começar.</p>
-                <p class="text-sm">Se a lista estiver vazia, configure a API ou inicie o servidor WebSocket de teste.</p>
+    <!-- HEADER PRINCIPAL -->
+    <header class="bg-white border-b border-gray-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+            <!-- Título e Status -->
+            <div class="flex items-center gap-4">
+                <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    WhatsApp Multi-Atendimento
+                </h1>
+                
+                <!-- Status de Conexão -->
+                <div id="connection-status" class="flex items-center gap-2 px-3 py-1 rounded-full bg-red-100">
+                    <span id="status-text" class="text-sm font-medium text-red-600">❌ Desconectado</span>
+                </div>
             </div>
-            <!-- Mensagens serão injetadas aqui -->
-        </div>
 
-        <!-- Formulário de Envio (aparece apenas quando conectado e com chat ativo) -->
-        <form id="chat-form" class="p-4 bg-white border-t border-gray-200 hidden flex-shrink-0">
-            <div class="flex items-center space-x-3">
-                <input type="text" id="mensagem-input" placeholder="Digite sua mensagem..." 
-                       class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                <button type="submit" class="bg-teal-500 text-white p-3 rounded-lg hover:bg-teal-600 transition duration-150 shadow-md">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            <!-- Botões de Ação -->
+            <div class="flex items-center gap-3">
+                <!-- NOVO: Botão Adicionar WhatsApp -->
+                <button id="btn-add-whatsapp" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-semibold">Novo WhatsApp</span>
+                </button>
+
+                <!-- NOVO: Badge de Clientes Conectados -->
+                <div id="connected-clients-badge" class="hidden bg-blue-100 text-blue-800 px-3 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                    </svg>
+                    <span id="clients-count">0</span> conectado(s)
+                </div>
+
+                <!-- Botão Histórico -->
+                <button id="btn-history-search" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition duration-200">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z"/>
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-2.261 2.26a1 1 0 101.414 1.415l2.261-2.261A4 4 0 1011 5z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-semibold">Histórico</span>
+                </button>
+
+                <!-- Botão Configurações -->
+                <button id="btn-settings" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-lg transition duration-200">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                    </svg>
                 </button>
             </div>
-        </form>
-    </section>
-
-</main>
-
-<!-- Modal de Configuração de Conexão -->
-<div id="settings-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-20">
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-6 text-teal-600 text-center">Conectar ao WhatsApp</h2>
-        
-        <!-- Abas de Navegação -->
-        <div class="flex border-b border-gray-200 mb-6">
-            <button data-tab="meta" class="tab-button flex-1 py-3 px-4 text-sm font-medium border-b-2 border-teal-500 text-teal-600 transition-colors duration-200">
-                Meta Cloud API
-            </button>
-            <button data-tab="qrcode" class="tab-button flex-1 py-3 px-4 text-sm font-medium text-gray-500 hover:text-teal-600 transition-colors duration-200">
-                WhatsApp Web (QR Code)
-            </button>
         </div>
+    </header>
 
-        <!-- Conteúdo da Aba 1: Meta Cloud API -->
-        <div id="tab-meta" class="tab-content">
-            <form id="connection-form">
-                <p class="text-sm text-gray-600 mb-4">Conexão oficial da Meta para grandes volumes. Requer um Token de Acesso e o ID do Número de Telefone.</p>
-                <div class="mb-4">
-                    <label for="input-token" class="block text-gray-700 font-semibold mb-2">Token de Acesso da Meta</label>
-                    <input type="password" id="input-token" placeholder="Bearer Token (Ex: EAA..." 
-                           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="flex h-[calc(100vh-80px)]">
+        
+        <!-- PAINEL LATERAL ESQUERDO -->
+        <aside class="w-80 bg-white border-r border-gray-200 flex flex-col">
+            
+            <!-- NOVO: Painel de Clientes Conectados -->
+            <div id="clients-panel" class="hidden bg-blue-50 p-3 border-b border-blue-200">
+                <h3 class="text-sm font-bold text-blue-900 mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    WhatsApps Conectados
+                </h3>
+                <div id="clients-list" class="space-y-2 max-h-40 overflow-y-auto">
+                    <!-- Clientes conectados aparecerão aqui dinamicamente -->
                 </div>
-                <div class="mb-6">
-                    <label for="input-phone-id" class="block text-gray-700 font-semibold mb-2">ID do Número de Telefone</label>
-                    <input type="text" id="input-phone-id" placeholder="Ex: 1000000000000" 
-                           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+            </div>
+
+            <!-- Título de Conversas -->
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800">Conversas</h2>
+            </div>
+            
+            <!-- Lista de Conversas -->
+            <div id="conversations-container" class="flex-1 overflow-y-auto">
+                <!-- As conversas serão inseridas aqui dinamicamente -->
+            </div>
+        </aside>
+
+        <!-- ÁREA DE CHAT PRINCIPAL -->
+        <main class="flex-1 flex flex-col bg-gray-100">
+            
+            <!-- Placeholder (quando nenhum chat está ativo) -->
+            <div id="placeholder-chat" class="flex-1 flex flex-col items-center justify-center text-gray-400">
+                <svg class="w-32 h-32 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <p class="text-xl font-semibold">Selecione uma conversa</p>
+                <p class="text-sm mt-2">Escolha um contato para iniciar o atendimento</p>
+            </div>
+
+            <!-- Header do Chat Ativo (Oculto inicialmente) -->
+            <div id="chat-header" class="hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        <span id="active-chat-initial">?</span>
+                    </div>
+                    <div>
+                        <h3 id="active-chat-name" class="font-bold text-gray-800 text-lg"></h3>
+                        <p id="active-chat-number" class="text-sm text-gray-500"></p>
+                    </div>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="btn-cancel-settings" class="bg-gray-300 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-400 transition duration-150">
-                        Cancelar
-                    </button>
-                    <button type="submit" id="btn-connect" class="bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 transition duration-150 font-bold">
-                        Conectar API
-                    </button>
-                </div>
+                <button class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Área de Mensagens (Oculta inicialmente) -->
+            <div id="mensagens" class="hidden flex-1 overflow-y-auto p-4 space-y-2 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0icGF0dGVybiIgeD0iMCIgeT0iMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxLjUiIGZpbGw9IiNkZGRkZGQiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiLz48L3N2Zz4=')] flex flex-col">
+                <!-- As mensagens serão inseridas aqui dinamicamente -->
+            </div>
+
+            <!-- Formulário de Envio (Oculto inicialmente) -->
+            <form id="chat-form" class="hidden bg-white border-t border-gray-200 p-4 flex gap-3">
+                <input 
+                    id="mensagem-input" 
+                    type="text" 
+                    placeholder="Digite sua mensagem..." 
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    autocomplete="off"
+                >
+                <button 
+                    type="submit" 
+                    class="bg-teal-500 hover:bg-teal-600 text-white p-3 rounded-full transition duration-200 shadow-md hover:shadow-lg"
+                >
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                    </svg>
+                </button>
             </form>
-        </div>
+        </main>
+    </div>
 
-        <!-- Conteúdo da Aba 2: WhatsApp Web (QR Code) -->
-        <div id="tab-qrcode" class="tab-content hidden">
-            <p class="text-sm text-gray-600 mb-4">Método de conexão para WhatsApp normal. O Electron simulará o fluxo do WhatsApp Web.</p>
+    <!-- MODAL DE CONFIGURAÇÕES -->
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             
-            <div id="qrcode-area" class="flex flex-col items-center justify-center p-6 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-                <img id="qrcode-image" src="https://placehold.co/200x200/50b299/FFFFFF?text=QR+Code" alt="QR Code Placeholder" class="mb-4 hidden">
-                <p id="qrcode-message" class="text-gray-500 text-center mb-4">Clique abaixo para iniciar a geração do QR Code.</p>
-                
-                <button id="btn-generate-qr" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-150 font-medium">
-                    Gerar Código QR
-                </button>
-                
-                <button id="btn-connect-qr" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-150 font-medium mt-3 hidden">
-                    Conectado via QR
-                </button>
+            <!-- Header do Modal -->
+            <div class="bg-gradient-to-r from-teal-500 to-blue-500 text-white p-6 rounded-t-2xl">
+                <h2 class="text-2xl font-bold">⚙️ Configurações de Conexão</h2>
+                <p class="text-sm mt-1 opacity-90">Escolha como conectar seu WhatsApp</p>
             </div>
-            
-            <div class="flex justify-end space-x-3 mt-6">
-                <button type="button" id="btn-cancel-qr" class="bg-gray-300 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-400 transition duration-150">
+
+            <div class="p-6 space-y-6">
+                
+                <!-- Opção 1: API Cloud -->
+                <div class="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
+                    <h3 class="font-bold text-lg text-blue-900 mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                        </svg>
+                        🔹 Opção 1: WhatsApp Business API (Cloud)
+                    </h3>
+                    
+                    <form id="connection-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Token de Acesso</label>
+                            <input 
+                                id="input-token" 
+                                type="text" 
+                                placeholder="Cole o token da Meta Business..." 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number ID</label>
+                            <input 
+                                id="input-phone-id" 
+                                type="text" 
+                                placeholder="ID do número de telefone..." 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                        <button 
+                            id="btn-connect" 
+                            type="submit" 
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                        >
+                            🔗 Conectar API
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Divisor -->
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500 font-semibold">OU</span>
+                    </div>
+                </div>
+
+                <!-- Opção 2: QR Code -->
+                <div class="bg-green-50 p-6 rounded-xl border-2 border-green-200">
+                    <h3 class="font-bold text-lg text-green-900 mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clip-rule="evenodd"/>
+                            <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 100-2H4a1 1 0 100 2h3zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z"/>
+                        </svg>
+                        🔹 Opção 2: WhatsApp Web (QR Code)
+                    </h3>
+                    
+                    <div class="text-center space-y-4">
+                        <button 
+                            id="btn-generate-qr" 
+                            class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                        >
+                            📱 Gerar Código QR
+                        </button>
+                        
+                        <img 
+                            id="qrcode-image" 
+                            class="hidden mx-auto border-4 border-green-200 rounded-xl shadow-lg max-w-xs" 
+                            alt="QR Code"
+                        >
+                        
+                        <p id="qrcode-message" class="text-sm text-gray-600"></p>
+                        
+                        <button 
+                            id="btn-connect-qr" 
+                            class="hidden w-full bg-green-600 text-white font-bold py-3 rounded-lg"
+                        >
+                            ✅ Conectado via QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer do Modal -->
+            <div class="bg-gray-50 p-4 rounded-b-2xl flex justify-end">
+                <button 
+                    id="btn-cancel-settings" 
+                    class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition duration-200"
+                >
                     Fechar
                 </button>
             </div>
         </div>
     </div>
-</div>
 
-<script src="renderer.js"></script>
-<script>
-    // Lógica de Abas
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('border-teal-500', 'text-teal-600');
-                btn.classList.add('text-gray-500');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
+    <!-- NOVO: Chat Interno -->
+    <section class="fixed right-4 bottom-4 w-80 bg-white shadow-lg rounded-xl border border-gray-200 flex flex-col overflow-hidden">
+        <div class="bg-teal-500 text-white px-4 py-2 flex justify-between items-center">
+            <span class="font-semibold text-sm">Chat Interno</span>
+            <button id="btn-toggle-internal-chat" class="text-xs bg-teal-600 px-2 py-1 rounded">Minimizar</button>
+        </div>
+        <div id="internal-chat-body" class="flex flex-col h-72">
+            <div id="internal-messages" class="flex-1 p-3 overflow-y-auto space-y-2 text-sm bg-gray-50"></div>
+            <form id="internal-chat-form" class="p-3 border-t flex gap-2">
+                <input id="internal-chat-input" type="text" placeholder="Mensagem interna..." class="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-400">
+                <button class="bg-teal-500 text-white px-3 rounded hover:bg-teal-600">Enviar</button>
+            </form>
+        </div>
+    </section>
 
-            button.classList.add('border-teal-500', 'text-teal-600');
-            button.classList.remove('text-gray-500');
-
-            document.getElementById(`tab-${button.dataset.tab}`).classList.remove('hidden');
-        });
-    });
-    
-    // Inicialmente, marca a aba "Meta" como ativa
-    document.querySelector('[data-tab="meta"]').click();
-    
-    // Listener para fechar o modal com o botão "Fechar" da aba QR
-    document.getElementById('btn-cancel-qr').addEventListener('click', () => {
-        document.getElementById('settings-modal').classList.add('hidden');
-    });
-    
-</script>
-
-
+    <!-- Script do Renderer -->
+    <script src="renderer.js"></script>
 </body>
 </html>

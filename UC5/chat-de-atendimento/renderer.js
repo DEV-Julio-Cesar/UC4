@@ -148,6 +148,94 @@ document.addEventListener('DOMContentLoaded', () => {
     updateConnectionStatus(isConnected);
     // Removida a tentativa antecipada de carregar chats aqui.
     // O loadAndDisplayChats() será chamado apenas por handleWhatsappReady após conexão bem-sucedida.
+
+    // Atualiza lista de clientes ao iniciar
+    setTimeout(updateConnectedClientsList, 1000);
+
+    // Chat interno refs
+    const internalMessagesDiv = document.getElementById('internal-messages');
+    const internalForm = document.getElementById('internal-chat-form');
+    const internalInput = document.getElementById('internal-chat-input');
+    const toggleBtn = document.getElementById('btn-toggle-internal-chat');
+    const internalBody = document.getElementById('internal-chat-body');
+    let internalMinimized = false;
+    const currentUser = 'Operador'; // Ajustar: recuperar do login se houver
+
+    function renderInternalMessage(msg) {
+        const el = document.createElement('div');
+        const mine = msg.from === currentUser;
+        el.className = `px-3 py-2 rounded-lg max-w-[85%] ${mine ? 'bg-teal-500 text-white ml-auto' : 'bg-white border border-gray-200'}`;
+        el.innerHTML = `<span class="block text-xs font-semibold">${msg.from}</span><span>${msg.texto}</span><span class="block text-[10px] opacity-70 mt-1">${new Date(msg.timestamp || Date.now()).toLocaleTimeString()}</span>`;
+        internalMessagesDiv.appendChild(el);
+        internalMessagesDiv.scrollTop = internalMessagesDiv.scrollHeight;
+    }
+
+    // Carrega histórico inicial
+    window.internalChatAPI.fetchHistory().then(r => {
+        if (r.sucesso) r.history.forEach(renderInternalMessage);
+    });
+
+    // Listener mensagens novas
+    window.internalChatAPI.onMessage(msg => renderInternalMessage(msg));
+
+    // Enviar
+    internalForm && internalForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const texto = internalInput.value.trim();
+        if (!texto) return;
+        renderInternalMessage({ from: currentUser, texto, timestamp: Date.now() });
+        internalInput.value = '';
+        const r = await window.internalChatAPI.send(currentUser, texto);
+        if (!r.sucesso) console.warn('Falha envio interno:', r.erro);
+    });
+
+    // Minimizar / expandir
+    toggleBtn && toggleBtn.addEventListener('click', () => {
+        internalMinimized = !internalMinimized;
+        internalBody.style.display = internalMinimized ? 'none' : 'flex';
+        toggleBtn.textContent = internalMinimized ? 'Expandir' : 'Minimizar';
+    });
+});
+
+// Botão para adicionar novo WhatsApp
+const btnAddWhatsapp = document.getElementById('btn-add-whatsapp');
+btnAddWhatsapp && btnAddWhatsapp.addEventListener('click', async () => {
+    try {
+        const result = await window.whatsappAPI.openNewQRWindow();
+        console.log('Nova janela QR aberta:', result);
+    } catch (err) {
+        console.error('Erro ao abrir janela QR:', err);
+    }
+});
+
+// Listener para novos clientes conectados
+window.whatsappAPI && window.whatsappAPI.onNewClientReady && window.whatsappAPI.onNewClientReady((data) => {
+    console.log('Novo cliente conectado:', data);
+    
+    // Atualiza a lista de clientes
+    updateConnectedClientsList();
+    
+    // Mostra notificação visual
+    if (Notification && Notification.permission === 'granted') {
+        new Notification('WhatsApp Conectado', {
+            body: `Número: ${data.number}`,
+            icon: 'path/to/whatsapp-icon.png' // adicione um ícone se quiser
+        });
+    }
+    
+    // Toast simples (opcional)
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-bounce';
+    toast.innerHTML = `
+        <div class="flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span>WhatsApp ${data.number} conectado!</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 });
 
 // -------------------- Utilities & Core Functions (single implementations) --------------------
@@ -293,3 +381,65 @@ function handleWhatsappReady() {
     btnConnectQR && (btnConnectQR.textContent = 'CONECTADO VIA QR', btnConnectQR.classList.remove('hidden'));
     loadAndDisplayChats();
 }
+
+// Função para atualizar a lista de clientes conectados
+async function updateConnectedClientsList() {
+    try {
+        const result = await window.whatsappAPI.listConnectedClients();
+        if (result && result.sucesso) {
+            const clientsPanel = document.getElementById('clients-panel');
+            const clientsList = document.getElementById('clients-list');
+            const clientsBadge = document.getElementById('connected-clients-badge');
+            const clientsCount = document.getElementById('clients-count');
+
+            if (result.clients.length > 0) {
+                clientsPanel && clientsPanel.classList.remove('hidden');
+                clientsBadge && clientsBadge.classList.remove('hidden');
+                clientsCount && (clientsCount.textContent = result.clients.length);
+
+                if (clientsList) {
+                    clientsList.innerHTML = result.clients.map(client => `
+                        <div class="bg-white p-2 rounded-lg flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full ${client.isReady ? 'bg-green-500' : 'bg-yellow-500'}"></div>
+                                <span class="font-medium text-gray-700">${client.number}</span>
+                            </div>
+                            <button 
+                                onclick="disconnectClient('${client.clientId}')" 
+                                class="text-red-500 hover:text-red-700 p-1"
+                                title="Desconectar"
+                            >
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                clientsPanel && clientsPanel.classList.add('hidden');
+                clientsBadge && clientsBadge.classList.add('hidden');
+            }
+        }
+    } catch (err) {
+        console.error('Erro ao atualizar lista de clientes:', err);
+    }
+}
+
+// Função para desconectar um cliente
+async function disconnectClient(clientId) {
+    if (!confirm(`Desconectar o cliente ${clientId}?`)) return;
+    
+    try {
+        const result = await window.whatsappAPI.disconnectClient(clientId);
+        if (result && result.sucesso) {
+            console.log('Cliente desconectado:', clientId);
+            updateConnectedClientsList();
+        }
+    } catch (err) {
+        console.error('Erro ao desconectar cliente:', err);
+    }
+}
+
+// Torna a função global para uso no onclick do HTML
+window.disconnectClient = disconnectClient;

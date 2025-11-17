@@ -55,5 +55,28 @@ contextBridge.exposeInMainWorld('whatsappAPI', {
      */
     onWhatsappReady: (callback) => {
         ipcRenderer.on('whatsapp-ready', () => callback());
+    },
+
+    // 🆕 Novas funções para múltiplos clientes
+    openNewQRWindow: () => {
+        return ipcRenderer.invoke('open-new-qr-window');
+    },
+    
+    listConnectedClients: () => {
+        return ipcRenderer.invoke('list-connected-clients');
+    },
+    
+    disconnectClient: (clientId) => {
+        return ipcRenderer.invoke('disconnect-client', clientId);
+    },
+    
+    onNewClientReady: (callback) => {
+        ipcRenderer.on('new-client-ready', (event, data) => callback(data));
     }
+});
+
+contextBridge.exposeInMainWorld('internalChatAPI', {
+    send: (from, texto) => ipcRenderer.invoke('internal-chat-send', { from, texto }),
+    fetchHistory: () => ipcRenderer.invoke('internal-chat-history'),
+    onMessage: (cb) => ipcRenderer.on('internal-chat-message', (e, msg) => cb(msg))
 });

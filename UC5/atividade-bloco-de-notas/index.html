@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloco de Notas Elegante</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="renderer.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.3);
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 35px;
+            font-size: 2.8em;
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.02); }
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
+            background: linear-gradient(145deg, #45a049, #4CAF50);
+        }
+
+        button:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        #abrir {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+        }
+
+        #abrir:hover {
+            background: linear-gradient(145deg, #1976D2, #2196F3);
+            box-shadow: 0 12px 35px rgba(33, 150, 243, 0.4);
+        }
+
+        #salvarComo {
+            background: linear-gradient(145deg, #FF9800, #F57C00);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.3);
+        }
+
+        #salvarComo:hover {
+            background: linear-gradient(145deg, #F57C00, #FF9800);
+            box-shadow: 0 12px 35px rgba(255, 152, 0, 0.4);
+        }
+
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .editor-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        #texto {
+            width: 100%;
+            height: 450px;
+            border: 2px solid #e1e8ed;
+            border-radius: 15px;
+            padding: 25px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.7;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #fafbfc, #f8f9fa);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+            color: #2c3e50;
+        }
+
+        #texto:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), inset 0 2px 10px rgba(0,0,0,0.05);
+            transform: scale(1.002);
+        }
+
+        #texto::placeholder {
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .status-bar {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #caminho {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+            font-weight: 400;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            
+            .container {
+                margin: 5px;
+                padding: 25px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+                margin-bottom: 25px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            button {
+                width: 100%;
+                max-width: 250px;
+                padding: 16px 28px;
+            }
+
+            #texto {
+                height: 350px;
+                padding: 20px;
+                font-size: 14px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-edit"></i> Bloco de Notas de Julio</h1>
+        
+        <div class="toolbar">
+            <button id="abrir" onclick="abrirArq()">
+                <i class="fas fa-folder-open"></i> ABRIR
+            </button> 
+            <button id="salvar" onclick="salvarArq()">
+                <i class="fas fa-save"></i> SALVAR
+            </button> 
+            <button id="salvarComo" onclick="salvarComoArq()">
+                <i class="fas fa-file-export"></i> SALVAR COMO
+            </button>
+        </div>
+        
+        <div class="editor-area">
+            <div class="editor-header">
+                <i class="fas fa-file-alt"></i>
+                <span>Editor de Texto</span>
+                <span style="margin-left: auto; font-size: 12px; color: #95a5a6;">
+                    <i class="fas fa-keyboard"></i> Ctrl+S: Salvar | Ctrl+O: Abrir
+                </span>
+            </div>
+            <textarea id="texto" placeholder="🚀 Bem-vindo ao Bloco de Notas Elegante!&#10;&#10;✨ Comece digitando aqui...&#10;&#10;💡 Dicas úteis:&#10;• Use Ctrl+S para salvar rapidamente&#10;• Use Ctrl+O para abrir arquivos existentes&#10;• Seu trabalho será salvo com total segurança&#10;• Interface responsiva - funciona em qualquer dispositivo&#10;&#10;📝 Recursos:&#10;• Design moderno e elegante&#10;• Animações suaves&#10;• Salvamento automático de estado&#10;• Suporte completo para arquivos de texto&#10;&#10;Aproveite sua experiência de escrita! 🎉"></textarea>
+        </div>
+        
+        <div class="status-bar">
+            <p id="caminho">
+                <i class="fas fa-info-circle"></i>
+                Novo documento - Pronto para edição
+            </p>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div><i class="fas fa-code"></i> Bloco de Notas Electron - Versão 2.0 Premium</div>
+        <div class="stats">
+            <div class="stat-item">
+                <i class="fas fa-magic"></i>
+                <span>Interface Moderna</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Salvamento Seguro</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-mobile-alt"></i>
+                <span>Responsivo</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

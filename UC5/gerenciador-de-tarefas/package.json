@@ -1,0 +1,22 @@
+{
+  "name": "gerenciador-de-tarefas",
+  "version": "1.0.0",
+  "description": "Gerenciador simples de tarefas em Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electronmon .",
+    "test": "electron ."
+  },
+  "keywords": [
+    "electron",
+    "tarefas",
+    "todo"
+  ],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.3.11",
+    "electronmon": "^2.0.2"
+  }
+}

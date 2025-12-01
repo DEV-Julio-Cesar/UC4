@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1701467123456,
+    "titulo": "Finalizar projeto do gerenciador de tarefas",
+    "descricao": "Concluir todas as funcionalidades e testes do aplicativo",
+    "dataCriacao": "01/12/2025 19:12:03",
+    "dataModificacao": "01/12/2025 19:12:03"
+  },
+  {
+    "id": 1701467234567,
+    "titulo": "Estudar Electron",
+    "descricao": "Aprofundar conhecimentos em desenvolvimento de aplicações desktop com Electron",
+    "dataCriacao": "01/12/2025 19:13:54",
+    "dataModificacao": "01/12/2025 19:13:54"
+  },
+  {
+    "id": 1701467345678,
+    "titulo": "Fazer backup dos dados",
+    "descricao": "",
+    "dataCriacao": "01/12/2025 19:15:45",
+    "dataModificacao": "01/12/2025 19:15:45"
+  }
+]
